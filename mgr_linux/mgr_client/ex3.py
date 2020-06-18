@@ -1,93 +1,75 @@
 from multiprocessing import Pool
 import time
-from random import random
-import math
-from operator import itemgetter
+# from random import random
+# import math
+# from operator import itemgetter
 import requests
-import asyncio
+# import asyncio
 import time
 
-def time_amount_function(x):
-    return len(x) / 10
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-def operation0(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation1(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation2(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation3(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation4(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation5(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation6(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation7(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
-
-def operation8(x):
-    time.sleep(time_amount_function(x))
-    return x[::-1]
+BASE_URL = r'https://localhost:44320/Operations'
 
 def operationA(x):
-    return requests.get(rf'https://localhost:44320/OperationA/{len(x) * 1000}', verify=False).content
+    return requests.get(f'{BASE_URL}/A/{len(x) * 1000}', verify=False).content
+
+def operationB(x):
+    return requests.get(f'{BASE_URL}/B/{len(x) * 20}', verify=False).content
+
+def operationC(x):
+    return requests.get(f'{BASE_URL}/C/{len(x) * 100}', verify=False).content
 
 if __name__ == '__main__':
     tl = [
-        ('pol', [1,1,1,1,2,2,1,], 'abc'),
-        ('ger', [1,2,1,1,2,], 'abcd'),
-        ('rus', [2,1,2,], 'a'),
-        ('nor', [5,2,1,1,], 'ab'),
-        ('fin', [1,], 'abcde'),
-        ('usa', [2,1,3], 'abcdefg'),
+        ('pol', range(5), range(10)),
+        ('ger', range(10), range(5)),
+        ('rus', range(20), range(20)),
+        ('nor', range(50), range(50)),
+        ('fin', range(100), range(5)),
+        ('usa', range(5), range(20)),
+        ('bel', range(10), range(0)),
         ]
 
-    print(sum([len(y) for x in tl for y in x]))
-    print('longest row')
-    print(max(
-        [sum([len(e) for e in r]) for r in tl])
-        )
-    print('longest column')
-    print(max(
-        sum([len(r[0]) for r in tl]),
-        sum([len(r[1]) for r in tl]),
-        sum([len(r[2]) for r in tl]),
-        ))
+    # print(sum([len(y) for x in tl for y in x]))
+    # print('longest row')
+    # print(max(
+    #     [sum([len(e) for e in r]) for r in tl])
+    #     )
+    # print('longest column')
+    # print(max(
+    #     sum([len(r[0]) for r in tl]),
+    #     sum([len(r[1]) for r in tl]),
+    #     sum([len(r[2]) for r in tl]),
+    #     ))
 
+    # print(max(
+    #     sum([len(r[c]
 
-    processes_count = 8
+    #         for c in range(len(r[0])
+    #         for r in tl))))
 
-    ts_seq = time.monotonic()
+    processes_count = 3
+
+    # ts_seq = time.monotonic()
     
-    z = [(operation0(a), operation1(b), operation2(c)) for (a,b,c) in tl]
+    # z = [(operationA(a), operationB(b), operationC(c)) for (a,b,c) in tl]
     
-    te_seq = time.monotonic()
-    t_seq = te_seq - ts_seq
-    print(f'sequential = {t_seq:.3f}s')
+    # te_seq = time.monotonic()
+    # t_seq = te_seq - ts_seq
+    # print(f'sequential = {t_seq:.3f}s')
 
-    ts_par = time.monotonic()
+    time.sleep(2)
+
+    t0 = time.monotonic()
     with Pool(processes_count) as p:
-        u0 = p.map_async(operation0, [x[0] for x in tl])
-        u1 = p.map_async(operation1, [x[1] for x in tl])
-        u2 = p.map_async(operation2, [x[2] for x in tl])
-        print('a')
+        t1 = time.monotonic()
+
+        u0 = p.map_async(operationA, [x[0] for x in tl])
+        u1 = p.map_async(operationB, [x[1] for x in tl])
+        u2 = p.map_async(operationC, [x[2] for x in tl])
+
+        t2 = time.monotonic()
         
         # print(time.time())
         # u0g = u0.get()
@@ -99,9 +81,11 @@ if __name__ == '__main__':
         # p.
 
         l = [x for x in zip(u0.get(), u1.get(), u2.get())]
-        
-    te_par = time.monotonic()
-    t_par = te_par - ts_par
 
-    print(f'parallel = {t_par:.3f}s')
-    print(f'sequential to parallel = {t_seq/t_par:.2f}x')
+        t3 = time.monotonic()
+        
+    t4 = time.monotonic()
+
+    print(f't1-t0: {t1-t0} \t t2-t1: {t2-t1} \t t3-t2: {t3-t2}')
+    print(f't4-t3: {t4-t3}')
+    print(f't3-t1: {t3-t1}')
