@@ -20,10 +20,9 @@ namespace mgr_server.Controllers
         private readonly ILogger<OperationsController> _logger;
         private OperationsTimes _operationsTimes;
 
-        public OperationsController(ILogger<OperationsController> logger, OperationsTimes operationsTimes)
+        public OperationsController(ILogger<OperationsController> logger)
         {
             _logger = logger;
-            _operationsTimes = operationsTimes;
         }
 
         [HttpGet]
@@ -55,7 +54,11 @@ namespace mgr_server.Controllers
             lock (lockC)
             {
                 Thread.Sleep(sleep);
-                return 1 / input; ;
+                if (input == 0)
+                {
+                    return int.MaxValue;
+                }
+                return 1 / input;
             }
         }
 
