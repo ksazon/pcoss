@@ -4,6 +4,9 @@ import sched
 import random
 import requests
 import urllib3
+import pandas as pd
+import networkx
+from typing import List, Tuple
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -18,6 +21,42 @@ def alg_random(table):
         for (r_idx, r) in enumerate(table)
         for (c_idx, c) in enumerate(r)
         ]
+
+
+# def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
+#     t_table = table.T
+#     conflits_arr = conflits.to_numpy()
+#     rank_matrix = np.full(table.shape, np.nan)
+#     sheduled_operations = []
+
+#     for row_idx, r in t_table.iterrows():
+#         for col_idx, cell in r.iteritems():
+#             if np.isnan(np.nanmax(rank_matrix[:,col_idx])):
+#                 rank_matrix[row_idx, col_idx] = 1
+#             else:
+#                 rank_matrix[row_idx, col_idx] = np.nanmax(rank_matrix[:col_idx]) + 1
+#             if not np.isnan(np.nanmax(rank_matrix[row_idx:])) and conflits_arr[np.argmax(rank_matrix[row_idx:])]:
+#                 rank_matrix[row_idx, col_idx] = np.nanmax(rank_matrix[row_idx,:]) + 1
+
+#     print('x')
+#     return rank_matrix
+
+
+def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
+    t_table = table.to_numpy()
+    t_conflits = conflits.to_numpy()
+    rank_matrix = np.full(t_table.shape, np.nan)
+
+    for row, col in np.ndindex(t_table.shape):
+        if np.isnan(np.nanmax(rank_matrix[:,col])):
+            rank_matrix[row, col] = 1
+        else:
+            rank_matrix[row, col] = np.nanmax(rank_matrix[:,col]) + 1
+        if not np.isnan(np.nanmax(rank_matrix[row,:])) and t_conflits[row, np.argmax(rank_matrix[row,:])] == 1:
+            rank_matrix[row, col] = np.nanmax(rank_matrix[row,:]) + 1
+
+    print('x')
+    return rank_matrix
 
 
 class Scheduler:
@@ -131,10 +170,16 @@ if __name__ == '__main__':
         ('usa', range(5), range(20)),
         ('bel', range(10), range(0)),
         ]
+    
+    index_cols = ['id',]
+    grouping_cols = ['g1']
+    table_in = pd.read_csv('../data/data.csv', index_col=index_cols, nrows=10, usecols=lambda c: c not in ['gr1',])
 
     O = {0: operation_a, 1: operation_b, 2: operation_c}
 
-    sc = Scheduler(table_in)
-    sc.operations = O
-    sc.prepare()
-    sc.run()
+    # sc = Scheduler(table_in)
+    # sc.operations = O
+    # sc.prepare()
+    # sc.run()
+
+    alg_insertion_beam(table_in, conflits=table_in)
