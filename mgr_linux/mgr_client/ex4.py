@@ -3,10 +3,9 @@ import numpy as np
 import sched
 import random
 import requests
+import urllib3
 
-
-requests.packages.urllib3.disable_warnings(
-    requests.packages.urllib3.exceptions.InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def id_func(x):
@@ -123,7 +122,7 @@ def operation_c(x):
 
 
 if __name__ == '__main__':
-    table = [
+    table_in = [
         ('pol', range(5), range(10)),
         ('ger', range(10), range(5)),
         ('rus', range(20), range(20)),
@@ -135,7 +134,7 @@ if __name__ == '__main__':
 
     O = {0: operation_a, 1: operation_b, 2: operation_c}
 
-    sc = Scheduler(table)
+    sc = Scheduler(table_in)
     sc.operations = O
     sc.prepare()
     sc.run()

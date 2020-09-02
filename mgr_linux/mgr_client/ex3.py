@@ -6,8 +6,16 @@ import time
 import requests
 # import asyncio
 import time
+import networkx
+import urllib3
 
-requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+# from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+# Use: from urllib3.exceptions import InsecureRequestWarning
+
+
+# requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+# urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 BASE_URL = r'https://localhost:44320/Operations'
 
