@@ -1,12 +1,14 @@
-import time
-import numpy as np
-import sched
+# import operator
 import random
-import requests
-import urllib3
+import sched
+import time
+# from typing import List, Tuple
+
+import networkx as nx
+import numpy as np
 import pandas as pd
-import networkx
-from typing import List, Tuple
+import urllib3
+import requests
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -42,21 +44,53 @@ def alg_random(table):
 #     return rank_matrix
 
 
+# def alg_insertion_beam_wrong(table: pd.DataFrame, conflits: pd.DataFrame):
+#     # def insertion_order():
+#     #     h = min(table.shape)
+#     #     O = map(operator.mul, )
+#     t_table = table.to_numpy()
+#     t_conflits = conflits.to_numpy()
+#     rank_matrix = np.full(t_table.shape, np.nan)
+
+#     for row, col in np.ndindex(t_table.shape):
+#         if np.isnan(np.nanmax(rank_matrix[:,col])):
+#             rank_matrix[row, col] = 1
+#         else:
+#             rank_matrix[row, col] = np.nanmax(rank_matrix[:,col]) + 1
+#         if not np.isnan(np.nanmax(rank_matrix[row,:])) and t_conflits[row, np.argmax(rank_matrix[row,:])] == 1:
+#             rank_matrix[row, col] = np.nanmax(rank_matrix[row,:]) + 1
+
+#     print('x')
+#     return rank_matrix
+
+
 def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
     t_table = table.to_numpy()
     t_conflits = conflits.to_numpy()
     rank_matrix = np.full(t_table.shape, np.nan)
 
-    for row, col in np.ndindex(t_table.shape):
-        if np.isnan(np.nanmax(rank_matrix[:,col])):
-            rank_matrix[row, col] = 1
-        else:
-            rank_matrix[row, col] = np.nanmax(rank_matrix[:,col]) + 1
-        if not np.isnan(np.nanmax(rank_matrix[row,:])) and t_conflits[row, np.argmax(rank_matrix[row,:])] == 1:
-            rank_matrix[row, col] = np.nanmax(rank_matrix[row,:]) + 1
+    def conflicts(row, col):
+        if col == 2 and np.isnan(rank_matrix[row,3]): return [(row,3),]
+        if col == 3 and np.isnan(rank_matrix[row,2]): return [(row,2),]
+        return []
+        # if col == 2: return [(row,3),(row,4),]
+        # if col == 3: return [(row,2),(row,4),]
+        # if col == 4: return [(row,2),(row,3),]
 
-    print('x')
-    return rank_matrix
+    def insertion_order():
+        # TODO better function
+        return np.random.permutation(np.ndindex(t_table.shape))
+
+    for row, col in insertion_order():
+
+        search_space = []
+        search_space.append(1)
+        for e in np.argwhere(~np.isnan(rank_matrix[:,col])):
+            search_space.append(rank_matrix[e,col]+1)
+        for cell in conflicts(row, col):
+            search_space.append(rank_matrix[cell]+1)
+        
+
 
 
 class Scheduler:
