@@ -29,6 +29,7 @@ def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
     t_table = table.to_numpy()
     t_conflits = conflits.to_numpy()
     rank_matrix = np.full(t_table.shape, np.nan)
+    candidate_schedules = [np.full(t_table.shape, np.nan),]
 
     def solve_conflicts(rm: np.ndarray, changed_rows: Set[int], changed_cols: Set[int]):
         new_changed_rows = set()
@@ -62,8 +63,9 @@ def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
         return random.sample(rm, min(len(rm), 2))
 
     for row, col in insertion_order():
+        for cs in candidate_schedules:
         potential_rank = set()
-        potential_rank_matrices = []
+        children = []
 
         potential_rank.add(1)
         for e in np.argwhere(~np.isnan(rank_matrix[:,col])):
@@ -72,7 +74,7 @@ def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
             potential_rank.add(rank_matrix[cell]+1)
 
         for pr in potential_rank:
-            prm = rank_matrix.copy()
+            prm = cs.copy()
             prm[row, col] = pr
             prm = solve_conflicts(prm, {row,}, {col,})
             potential_rank_matrices.append(prm)
