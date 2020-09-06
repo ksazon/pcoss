@@ -2,7 +2,7 @@
 import random
 import sched
 import time
-# from typing import List, Tuple
+from typing import List, Tuple, Set
 
 import networkx as nx
 import numpy as np
@@ -25,72 +25,60 @@ def alg_random(table):
         ]
 
 
-# def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
-#     t_table = table.T
-#     conflits_arr = conflits.to_numpy()
-#     rank_matrix = np.full(table.shape, np.nan)
-#     sheduled_operations = []
-
-#     for row_idx, r in t_table.iterrows():
-#         for col_idx, cell in r.iteritems():
-#             if np.isnan(np.nanmax(rank_matrix[:,col_idx])):
-#                 rank_matrix[row_idx, col_idx] = 1
-#             else:
-#                 rank_matrix[row_idx, col_idx] = np.nanmax(rank_matrix[:col_idx]) + 1
-#             if not np.isnan(np.nanmax(rank_matrix[row_idx:])) and conflits_arr[np.argmax(rank_matrix[row_idx:])]:
-#                 rank_matrix[row_idx, col_idx] = np.nanmax(rank_matrix[row_idx,:]) + 1
-
-#     print('x')
-#     return rank_matrix
-
-
-# def alg_insertion_beam_wrong(table: pd.DataFrame, conflits: pd.DataFrame):
-#     # def insertion_order():
-#     #     h = min(table.shape)
-#     #     O = map(operator.mul, )
-#     t_table = table.to_numpy()
-#     t_conflits = conflits.to_numpy()
-#     rank_matrix = np.full(t_table.shape, np.nan)
-
-#     for row, col in np.ndindex(t_table.shape):
-#         if np.isnan(np.nanmax(rank_matrix[:,col])):
-#             rank_matrix[row, col] = 1
-#         else:
-#             rank_matrix[row, col] = np.nanmax(rank_matrix[:,col]) + 1
-#         if not np.isnan(np.nanmax(rank_matrix[row,:])) and t_conflits[row, np.argmax(rank_matrix[row,:])] == 1:
-#             rank_matrix[row, col] = np.nanmax(rank_matrix[row,:]) + 1
-
-#     print('x')
-#     return rank_matrix
-
-
 def alg_insertion_beam(table: pd.DataFrame, conflits: pd.DataFrame):
     t_table = table.to_numpy()
     t_conflits = conflits.to_numpy()
     rank_matrix = np.full(t_table.shape, np.nan)
 
+    def solve_conflicts(rm: np.ndarray, changed_rows: Set[int], changed_cols: Set[int]):
+        new_changed_rows = set()
+        new_changed_cols = set()
+
+        for cr in changed_rows:
+            for cc in changed_cols:
+                for cv in np.where(rm[cr,:] == rm[cr,cc]):
+                    if cv[0] == cc:
+                        continue
+                    new_changed_rows.add(cr)
+                    new_changed_cols.add(cc)
+                    rm[cv] += 1
+        
+        if new_changed_rows:
+            return solve_conflicts(rm, new_changed_rows, new_changed_cols)
+        
+        return rm
+
     def conflicts(row, col):
-        if col == 2 and np.isnan(rank_matrix[row,3]): return [(row,3),]
-        if col == 3 and np.isnan(rank_matrix[row,2]): return [(row,2),]
+        if col == 2 and not np.isnan(rank_matrix[row,3]): return [(row,3),]
+        if col == 3 and not np.isnan(rank_matrix[row,2]): return [(row,2),]
         return []
-        # if col == 2: return [(row,3),(row,4),]
-        # if col == 3: return [(row,2),(row,4),]
-        # if col == 4: return [(row,2),(row,3),]
 
     def insertion_order():
         # TODO better function
-        return np.random.permutation(np.ndindex(t_table.shape))
+        return np.random.permutation(list(np.ndindex(t_table.shape)))
+
+    def beam_search(rm: Set[np.ndarray]):
+        # TODO better function
+        return random.sample(rm, min(len(rm), 2))
 
     for row, col in insertion_order():
+        potential_rank = set()
+        potential_rank_matrices = []
 
-        search_space = []
-        search_space.append(1)
+        potential_rank.add(1)
         for e in np.argwhere(~np.isnan(rank_matrix[:,col])):
-            search_space.append(rank_matrix[e,col]+1)
+            potential_rank.add(rank_matrix[e,col]+1)
         for cell in conflicts(row, col):
-            search_space.append(rank_matrix[cell]+1)
-        
+            potential_rank.add(rank_matrix[cell]+1)
 
+        for pr in potential_rank:
+            prm = rank_matrix.copy()
+            prm[row, col] = pr
+            prm = solve_conflicts(prm, {row,}, {col,})
+            potential_rank_matrices.append(prm)
+        
+        potential_rank_matrices_truncated = beam_search(potential_rank_matrices)
+        
 
 
 class Scheduler:
