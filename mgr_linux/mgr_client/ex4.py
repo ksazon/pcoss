@@ -10,6 +10,15 @@ import pandas as pd
 import urllib3
 import requests
 
+from bokeh.io import output_file, show
+from bokeh.models import (BoxZoomTool, Circle, HoverTool,
+                          MultiLine, Plot, Range1d, ResetTool,)
+from bokeh.palettes import Spectral4
+from bokeh.plotting import from_networkx
+
+from matplotlib import pyplot as plt
+
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -93,16 +102,16 @@ class Scheduler:
     }
 
 
-    def __init__(self, table):
+    def __init__(self, table, processing_times=None, conflict_graph=None):
         self.table = table
         self._table = table
         self.row_grouping_func = id_func
         self.cloumn_grouping_func = id_func
         self.operations = []
-        self.conflict_graph = []
+        self.conflict_graph = conflict_graph
         self.complexity_table = []
-        self.times_table = []
-        self._times_table = []
+        self.processing_times = processing_times
+        self._processing_times = []
         self.algorithm = self._default_algorithm
         self.objective = self._default_objective
         self._schedule = []
@@ -126,14 +135,14 @@ class Scheduler:
 
 
     def _fill_times(self):
-        if self.times_table:
-            self._times_table = self.times_table
+        if self.processing_times:
+            self._processing_times = self.processing_times
         
         # todo
         if self.complexity_table:
-            self._times_table = self._table * self.complexity_table
+            self._processing_times = self._table * self.complexity_table
         
-        self._times_table = self._assses_aproximate_execution_times()
+        self._processing_times = self._assses_aproximate_execution_times()
 
 
     def _assses_aproximate_execution_times(self):
@@ -207,4 +216,55 @@ if __name__ == '__main__':
     # sc.prepare()
     # sc.run()
 
-    alg_insertion_beam(table_in, conflits=table_in)
+    # alg_insertion_beam(table_in, conflits=table_in)
+
+    # conflict_graph = nx.from_numpy_array(np.array([[0, 1, 1], [1, 0, 0], [1, 0, 0]]))
+    job_cnt, machines_cnt = table_in.shape
+    conflicting_machines = [(1,2),]
+
+    def create_conflict_graph(show=True) -> nx.Graph:
+        G = nx.Graph()
+        for job_idx in range(job_cnt):
+            job_nodes = [(job_idx,machine_idx) for machine_idx in range(machine_cnt)]
+            G.add_nodes_from(job_nodes)
+
+            for cm1, cm2 in conflicting_machines:
+                G.add_edge((job_idx,cm1), (job_idx,cm2))
+            
+            for prev_job_idx in range(job_idx):
+                for machine_idx in range(machine_cnt):
+                    G.add_edge((prev_job_idx,machine_idx), (job_idx,machine_idx))
+
+        if show:
+            plt.figure(figsize=(6,6))
+            pos = {(x,y):(y+random()/3,-x+random()/3) for x,y in G.nodes()}
+            nx.draw(G, with_labels=True, pos=pos, connectionstyle='arc3, rad=2')
+            plt.show()
+
+    conflict_graph_in = create_conflict_graph()
+    # conflict_graph_in.re
+    # conflict_graph.
+    
+    # # plot = Plot(plot_width=400, plot_height=400,
+    # #         x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+            
+    # plot = Plot(plot_width=400, plot_height=400)
+
+    # plot.title.text = "Graph Interaction Demonstration"
+
+    # # node_hover_tool = HoverTool(tooltips=[("index", "@index"), ("club", "@club")])
+    # # plot.add_tools(node_hover_tool, BoxZoomTool(), ResetTool())
+
+    # graph_renderer = from_networkx(conflict_graph, nx.spring_layout, scale=1, center=(0, 0))
+
+    # graph_renderer.node_renderer.glyph = Circle(size=15, fill_color=Spectral4[0])
+    # # graph_renderer.edge_renderer.glyph = MultiLine(line_color="edge_color", line_alpha=0.8, line_width=1)
+    # plot.renderers.append(graph_renderer)
+
+    # output_file("interactive_graphs.html")
+    # show(plot)
+
+    # plt.figure(figsize=(6,6))
+    # pos = {(x,y):(y,-x) for x,y in conflict_graph_in.nodes()}
+    # nx.draw(conflict_graph_in, with_labels=True, pos=pos)
+    plt.show()
