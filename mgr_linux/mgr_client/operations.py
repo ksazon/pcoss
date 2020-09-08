@@ -3,7 +3,6 @@ import urllib3
 
 import constants as c
 
-
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
