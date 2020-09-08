@@ -2,6 +2,7 @@ import networkx as nx
 from matplotlib import pyplot as plt
 from random import random
 from typing import List, Set, Tuple
+import operations as o
 
 
 def id_func(x):
@@ -12,7 +13,7 @@ def create_conflict_graph_from_cnts_and_conflicting_machine_list(
     machine_cnt: int,
     conflicting_machines: Set[Tuple[int, int]],
     show=True) -> nx.Graph:
-    
+
     G = nx.Graph()
     for job_idx in range(job_cnt):
         job_nodes = [(job_idx,machine_idx) for machine_idx in range(machine_cnt)]
@@ -34,3 +35,11 @@ def create_conflict_graph_from_cnts_and_conflicting_machine_list(
         plt.show()
     
     return G
+
+class Cfg:
+    def __init__(self, filepath: str):
+        self.index_cols = ['id',]
+        self.grouping_cols = ['gr1',]
+        self.conflicting_machines = {(1,2),}
+        self.operation_addresses = {0: o.operation_a, 1: o.operation_b, 2: o.operation_c}
+        self.beam_width = 5
