@@ -5,9 +5,10 @@ import numpy as np
 from typing import Set, Tuple, List, Dict
 import constants as c
 
-# _algorithm_dict = {
-#     'random': alg_random,
-# }
+algorithm_dict = {
+    'random': alg_random,
+}
+
 
 def alg_random(table):
     return [
