@@ -14,7 +14,7 @@ import helpers as h
 class Scheduler:
     def __init__(self, table: pd.DataFrame):
         self.table: pd.DataFrame = table
-        self._table: pd.DataFrame = table
+        self._table: pd.DataFrame = table.to_numpy()
         self.row_grouping_func = h.id_func
         self.cloumn_grouping_func = h.id_func
         self.operations: Dict = {}
@@ -57,7 +57,7 @@ class Scheduler:
     def _assses_aproximate_execution_times(self):
         # todo
         return pd.DataFrame(
-            np.ones((len(self._table), len(self._table.columns))))
+            np.ones(self._table.shape))
 
 
     def _prepare_data(self):

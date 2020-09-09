@@ -126,9 +126,20 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
 
     def schedule_as_list_of_tuples(self, rm: np.ndarray
-            ) -> List[float, Tuple[int, int]]:
+            ) -> List[Tuple[float, Tuple[int, int]]]:
+        scheduled_operations = []
+        cur_rank = 1
+        st = 0
         
-        raise NotImplementedError
+        while len(scheduled_operations) < rm.size:
+            idxs = np.nonzero(rm==cur_rank)
+            for idx in np.transpose(idxs):
+                scheduled_operations.append((st, idx))
+
+            st += max(self.pt[idxs])
+            cur_rank += 1
+        
+        return scheduled_operations
 
 
     def run(self):
@@ -153,7 +164,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
             self.candidate_schedules = self.beam_search(
                 candidate_schedules_with_children, (job, machine))
         
-        # TODO select best schedule
         return self.schedule_as_list_of_tuples(self.candidate_schedules[0])
 
 

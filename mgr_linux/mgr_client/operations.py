@@ -13,12 +13,12 @@ def operation_a(x):
 
 
 def operation_b(x):
-    ret = requests.get(f'{c.BASE_URL}/B/{len(x)}/0', verify=False).content
+    ret = requests.get(f'{c.BASE_URL}/B/{x}/0', verify=False).content
     print('b', ret)
     return ret
 
 
 def operation_c(x):
-    ret = requests.get(f'{c.BASE_URL}/C/{len(x)}/0', verify=False).content
+    ret = requests.get(f'{c.BASE_URL}/C/{x}/0', verify=False).content
     print('c', ret)
     return ret

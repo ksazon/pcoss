@@ -26,7 +26,12 @@ def main():
         nrows=10,
         usecols=lambda col: col not in cfg.grouping_cols)
 
-    operatation_dict = {0: o.operation_a, 1: o.operation_b, 2: o.operation_c}
+    operatation_dict = {
+        0: o.operation_a,
+        1: o.operation_b,
+        2: o.operation_b,
+        3: o.operation_c,
+        }
 
     job_cnt, machine_cnt = table_in.shape
     conflict_graph_in = (
