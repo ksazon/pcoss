@@ -23,7 +23,7 @@ def main():
     table_in = pd.read_csv(
         '../data/data.csv',
         index_col=cfg.index_cols,
-        nrows=10,
+        nrows=50,
         usecols=lambda col: col not in cfg.grouping_cols)
 
     operatation_dict = {
@@ -45,7 +45,7 @@ def main():
     sc.operations = operatation_dict
     sc.conflict_graph = conflict_graph_in
     sc.prepare()
-    sc.run()
+    # sc.run()
 
 
 if __name__ == '__main__':

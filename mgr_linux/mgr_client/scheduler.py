@@ -68,11 +68,14 @@ class Scheduler:
     
 
     def _prepare_schedule(self):
+        t1 = time.monotonic()
         self._schedule = (
             a.ALGORITHM_CLASS_DICT[self.algorithm]
             (self._processing_times, self.conflict_graph)
             .run()
         )
+        t2 = time.monotonic()
+        print(t2-t1)
 
         for (t, (row, col)) in self._schedule:
             self._scheduler.enter(t, 0, self.operations[col],

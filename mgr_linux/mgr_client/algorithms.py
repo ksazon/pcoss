@@ -84,16 +84,30 @@ class InsertionBeam(ScheduleAlgorithmBase):
             ) -> List[Tuple[int, int]]:
         
         step = 1 if asc else -1
-        next_e = list(filter(
-                lambda x: rm[x] == rm[e]+step,
-                self.conflict_graph.neighbors(e)
-                )
-                )
-        
+        next_val = rm[e]+step
+        next_e = next(filter(lambda n: rm[n] == next_val, self.conflict_graph[e]), None) 
+
         if next_e:
-            return [next_e[0]] + self.path_rec(rm, next_e[0], asc)
+            return [next_e] + self.path_rec(rm, next_e, asc)
 
         return []
+
+
+    def _path_rec(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
+            ) -> List[Tuple[int, int]]:
+        
+        step = 1 if asc else -1
+        l = []
+        n = e
+
+        while n:
+            next_val = rm[n]+step
+            n = next(filter(lambda nn: rm[nn] == next_val, self.conflict_graph[n]), None) 
+
+            if n:
+                l += [n]
+        
+        return l
 
 
     def get_path(self, rm: np.ndarray, added_element_idx: Tuple[int, int]
