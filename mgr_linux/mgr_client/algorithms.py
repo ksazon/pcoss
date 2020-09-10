@@ -31,10 +31,26 @@ class Randomized(ScheduleAlgorithmBase):
 
 class InsertionBeam(ScheduleAlgorithmBase):
     def insertion_order(self):
-        # TODO better function
-        return np.random.permutation(list(np.ndindex(self.pt.shape)))
+        first_order = []
+        h = min(self.pt.shape)
+        pt_i = self.pt[:h,:].copy()
+        i = 0
 
+        for i in range(h):
+            ma = np.argmax(pt_i[i,:])
+            first_order += [(ma,i)]
+            pt_i = np.delete(pt_i, ma, axis=1)
+        
+        other_order = [(x[0], x[1]) for x in filter(
+            lambda e: (e[0], e[1]) not in first_order,
+            np.transpose(np.unravel_index(
+                np.argsort(self.pt,axis=None)[::-1],
+                    shape=self.pt.shape)))]
 
+        return first_order + other_order
+        # return np.random.permutation(list(np.ndindex(self.pt.shape)))
+
+    
     def solve_conflicting_ranks(self, rm: np.ndarray, changed_rows: Set[int],
             changed_cols: Set[int]
             ) -> np.ndarray:
@@ -53,11 +69,10 @@ class InsertionBeam(ScheduleAlgorithmBase):
                 #     new_changed_cols.add(cc)
                 #     rm[cr, cc] += 1
                 
-                for n in self.conflict_graph.neighbors((cr, cc)):
-                    if rm[n] == cv:
-                        new_changed_rows.add(n[0])
-                        new_changed_cols.add(n[1])
-                        rm[n] += 1
+                for n in filter(lambda n: rm[n] == cv, self.conflict_graph[(cr, cc)]):
+                    new_changed_rows.add(n[0])
+                    new_changed_cols.add(n[1])
+                    rm[n] += 1
         
         if new_changed_rows:
             return self.solve_conflicting_ranks(
@@ -66,7 +81,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
                 new_changed_cols)
         
         return rm
-
 
     def row_conflicts(self, rm: np.ndarray, row: int, col: int
             ) -> List[Tuple[int, int]]:
@@ -78,7 +92,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
             return [(row,2),]
         
         return []
-
 
     def path_rec(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
             ) -> List[Tuple[int, int]]:
@@ -92,33 +105,33 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
         return []
 
-
     def _path_rec(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
             ) -> List[Tuple[int, int]]:
         
+        cg = self.conflict_graph
         step = 1 if asc else -1
         l = []
         n = e
 
         while n:
             next_val = rm[n]+step
-            n = next(filter(lambda nn: rm[nn] == next_val, self.conflict_graph[n]), None) 
+            n = next(filter(lambda nn: rm[nn] == next_val, cg[n]), None)
 
             if n:
                 l += [n]
         
         return l
 
-
     def get_path(self, rm: np.ndarray, added_element_idx: Tuple[int, int]
             ) -> List[Tuple[int, int]]:
         
-        return (
-            self.path_rec(rm, added_element_idx, False)
-            + [added_element_idx]
-            + self.path_rec(rm, added_element_idx, True)
-        )
+        pr = self.path_rec
 
+        return (
+            pr(rm, added_element_idx, False)
+            + [added_element_idx]
+            + pr(rm, added_element_idx, True)
+        )
 
     def beam_search(self, rm_list: List[np.ndarray],
             added_element_idx: Tuple[int, int]) -> List[np.ndarray]:
@@ -138,7 +151,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
         # return random.sample(rm_list, min(len(rm_list), c.DEFAULT_BEAM_WIDTH))
 
-
     def schedule_as_list_of_tuples(self, rm: np.ndarray
             ) -> List[Tuple[float, Tuple[int, int]]]:
         scheduled_operations = []
@@ -155,8 +167,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
         
         return scheduled_operations
 
-
-    def run(self):
+    def run(self) -> List[Tuple[float, Tuple[int, int]]]:
         for job, machine in self.insertion_order():
             candidate_schedules_with_children = []
             for cs in self.candidate_schedules:
