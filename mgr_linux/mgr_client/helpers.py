@@ -44,7 +44,5 @@ class Cfg:
     def __init__(self, filepath: str):
         self.index_cols = ['id',]
         self.grouping_cols = ['gr1',]
-        self.conflicting_machines = {(1,2),}
-        self.operation_addresses = {
-            0: o.operation_a, 1: o.operation_b, 2: o.operation_c}
+        self.conflicting_machines = {(1,2),(5,8),(16,19),}
         self.beam_width = 5

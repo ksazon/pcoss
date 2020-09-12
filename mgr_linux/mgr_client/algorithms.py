@@ -149,7 +149,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
             [:c.DEFAULT_BEAM_WIDTH]
             )
 
-        # return random.sample(rm_list, min(len(rm_list), c.DEFAULT_BEAM_WIDTH))
 
     def schedule_as_list_of_tuples(self, rm: np.ndarray
             ) -> List[Tuple[float, Tuple[int, int]]]:

@@ -25,3 +25,10 @@ def operation_c(x):
     if c.PRINT_RESPONSES:
         print('c', ret)
     return ret
+
+
+def operation_0(x):
+    ret = requests.get(f'{c.BASE_URL}/0/{x}/0', verify=False).content
+    if c.PRINT_RESPONSES:
+        print('0', ret)
+    return ret
