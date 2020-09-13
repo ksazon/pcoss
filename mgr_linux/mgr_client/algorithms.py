@@ -12,7 +12,7 @@ class ScheduleAlgorithmBase:
     def __init__(self, processing_times: pd.DataFrame,
             conflict_graph: nx.Graph):
 
-        self.pt = processing_times.to_numpy()
+        self.pt = processing_times
         self.conflict_graph = conflict_graph
         self.candidate_schedules = [np.full(self.pt.shape, np.nan),]
 
@@ -32,19 +32,21 @@ class Randomized(ScheduleAlgorithmBase):
 class InsertionBeam(ScheduleAlgorithmBase):
     def insertion_order(self):
         first_order = []
-        h = min(self.pt.shape)
-        pt_i = self.pt[:h,:].copy()
-        i = 0
+        min_shape = min(self.pt.shape)
+        pt_trimmed = self.pt[:min_shape, :].copy()
+        row_idx = 0
 
-        for i in range(h):
-            ma = np.argmax(pt_i[i,:])
-            first_order += [(ma,i)]
-            pt_i = np.delete(pt_i, ma, axis=1)
+        for row_idx in range(min_shape):
+            max_col_idx = np.argmax(pt_trimmed[row_idx, :])
+            first_order += [(row_idx, max_col_idx)]
+            pt_trimmed = np.delete(pt_trimmed, max_col_idx, axis=1)
         
         other_order = [(x[0], x[1]) for x in filter(
             lambda e: (e[0], e[1]) not in first_order,
-            np.transpose(np.unravel_index(
-                np.argsort(self.pt,axis=None)[::-1],
+            np.transpose(
+                np.unravel_index(
+                    np.argsort(self.pt, axis=None)
+                    [::-1],
                     shape=self.pt.shape)))]
 
         return first_order + other_order
@@ -148,7 +150,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
             sorted(rm_costs.items(), key=lambda e: e[1])]
             [:c.DEFAULT_BEAM_WIDTH]
             )
-
 
     def schedule_as_list_of_tuples(self, rm: np.ndarray
             ) -> List[Tuple[float, Tuple[int, int]]]:

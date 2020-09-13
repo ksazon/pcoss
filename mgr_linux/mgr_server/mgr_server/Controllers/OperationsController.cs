@@ -16,6 +16,7 @@ namespace mgr_server.Controllers
         private static readonly object lockA = new object();
         private static readonly object lockB = new object();
         private static readonly object lockC = new object();
+        private static Dictionary<string, object> lockDict = new Dictionary<string, object>();
 
         private readonly ILogger<OperationsController> _logger;
         private OperationsTimes _operationsTimes;
@@ -67,6 +68,18 @@ namespace mgr_server.Controllers
         public int GetD(int input, int sleep)
         {
             lock (lockC)
+            {
+                Thread.Sleep(sleep);
+                return (new Random()).Next();
+            }
+        }
+
+        [HttpGet]
+        [Route("0/{input}/{sleep}")]
+        public int Get0(string input, int sleep)
+        {
+            lockDict.TryAdd(input, new object());
+            lock (lockDict[input])
             {
                 Thread.Sleep(sleep);
                 return (new Random()).Next();
