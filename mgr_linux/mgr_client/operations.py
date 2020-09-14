@@ -26,10 +26,13 @@ async def operation(so: scheduled_operation, session, ts):
     it3 = time.perf_counter()
 
     if c.PRINT_RESPONSES:
+        print(f'{url=}\t{ret=}')
+    
+    if c.PRINT_TIMES:
         # print(f'{so.endpoint=}\t{so.item=}\t{so.start_time=:.2f}\t{so.end_time=:.2f}\t{so.operation_duration=:.2f}\t{ret=}')
         print(f'{so.endpoint=}\t{so.machine=}\t{so.start_time=:.2f}\t{so.end_time=:.2f}\t{so.operation_duration=:.2f}')
         # print(f'it1-it0={it1-it0:.2f}\tit2-it1={it2-it1:.2f}\tit3-it2={it3-it2:.2f}\tit2-it0={it2-it0:.2f}\tit0-ts={it0-ts:.2f}')
-        print(f'it2-it1={it2-it1:.2f}')
+        print(f'{'***' if it2-it1 > so.operation_duration else ''}\tit2-it1={it2-it1:.2f}')
     
     return ret
 

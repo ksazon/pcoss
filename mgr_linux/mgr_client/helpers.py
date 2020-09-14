@@ -1,13 +1,11 @@
 import time
+from dataclasses import dataclass
 from functools import wraps
 from random import random
 from typing import List, Set, Tuple
 
 import networkx as nx
 from matplotlib import pyplot as plt
-
-from dataclasses import dataclass
-# import operations as o
 
 
 def id_func(x):
@@ -71,3 +69,40 @@ class scheduled_operation:
     machine: int
     endpoint: str
     item: object
+
+
+def plot_gantt_chart(schedule: List[scheduled_operation]):
+    import plotly.express as px
+    import pandas as pd
+
+    def tramsform_opearation_time_to_date(operation_time: float):
+        beginning_date = pd.to_datetime('2020-01-01')
+
+        return beginning_date + pd.DateOffset(int(operation_time/1000))
+
+    schedule_df = pd.DataFrame([asdict(so) for so in schedule])
+
+    print(f'max et: {max(schedule_df.end_time)}')
+    schedule_df.start_time = schedule_df.start_time.apply(tramsform_opearation_time_to_date)
+    schedule_df.end_time = schedule_df.end_time.apply(tramsform_opearation_time_to_date)
+
+    fig = px.timeline(
+        schedule_df,
+        x_start="start_time",
+        x_end="end_time",
+        y="machine",
+        color="job",
+        color_continuous_scale=px.colors.sequential.Greys)
+        
+    fig.show()
+
+
+def plot_schedule_graph(graph: nx.DiGraph):
+    plt.figure(figsize=(12, 12))
+    pos = {
+        (x, y): (y + random.random() / 3, -x + random.random() / 3)
+        for x, y in self.outcome_graph.nodes()
+        }
+    
+    nx.draw(self.outcome_graph, pos=pos, with_labels=True)
+    plt.show()

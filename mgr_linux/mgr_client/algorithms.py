@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 import constants as c
-
 from helpers import scheduled_operation as so
 
 
@@ -17,7 +16,16 @@ class ScheduleAlgorithmBase:
         self.pt = processing_times
         self.conflict_graph = conflict_graph
         self.candidate_schedules = [np.full(self.pt.shape, np.nan),]
+        self.row_conflicts_set = {
+            (o0[1], o1[1])
+            for (o0, o1) in filter(
+                lambda e: e[0][0] == e[1][0],
+                conflict_graph.edges())
+                }
 
+    def insertion_order(self) -> List[Tuple[int, int]]:
+        raise NotImplementedError
+    
     def run(self) -> List[so]:
         raise NotImplementedError
 
@@ -25,6 +33,8 @@ class ScheduleAlgorithmBase:
 
 
 class Randomized(ScheduleAlgorithmBase):
+    def insertion_order(self):
+        return np.random.permutation(list(np.ndindex(self.pt.shape)))
     def run(self):
         return [
             (random.random() * 5, (r_idx, c_idx))
@@ -34,7 +44,7 @@ class Randomized(ScheduleAlgorithmBase):
 
 
 class InsertionBeam(ScheduleAlgorithmBase):
-    def insertion_order(self):
+    def insertion_order(self) -> List[Tuple[int, int]]:
         first_order = []
         min_shape = min(self.pt.shape)
         pt_trimmed = self.pt[:min_shape, :].copy()
@@ -42,7 +52,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
         for row_idx in range(min_shape):
             max_col_idx = np.argmax(pt_trimmed[row_idx, :])
-            first_order += [(row_idx, max_col_idx)]
+            first_order += [(row_idx, max_col_idx),]
             pt_trimmed = np.delete(pt_trimmed, max_col_idx, axis=1)
         
         other_order = [(x[0], x[1]) for x in filter(
@@ -54,7 +64,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
                     shape=self.pt.shape)))]
 
         return first_order + other_order
-        # return np.random.permutation(list(np.ndindex(self.pt.shape)))
 
     def solve_conflicting_ranks(self, rm: np.ndarray,
             changed_rows: Set[int], changed_cols: Set[int]) -> np.ndarray:
@@ -85,13 +94,28 @@ class InsertionBeam(ScheduleAlgorithmBase):
     def row_conflicts(self, rm: np.ndarray, row: int, col: int
             ) -> List[Tuple[int, int]]:
         
-        # TODO rewrite
-        if col == 2 and not np.isnan(rm[row, 3]):
-            return [(row, 3),]
-        if col == 3 and not np.isnan(rm[row, 2]):
-            return [(row, 2),]
-        
-        return []
+        # ret = (
+        #     [(row, cp[1]) for cp in self.row_conflicts_set if cp[0] == col and np.isnan(rm[row, cp[1]])]
+        #     + [(row, cp[0]) for cp in self.row_conflicts_set if cp[1] == col and np.isnan(rm[row, cp[0]])]
+        # )
+        # return (
+        #     [(row, cp[1]) for cp in self.row_conflicts_set if cp[0] == col]
+        #     + [(row, cp[0]) for cp in self.row_conflicts_set if cp[1] == col]
+        # )
+        # for c0, c1 in self.row_conflicts:
+        #     if col == c0 and not np.isnan(rm[row, c1]):
+        #         return [(row, c1)]
+
+        ret = []
+
+        for cp in self.row_conflicts_set:
+            if col == cp[0] and not np.isnan(rm[row, cp[1]]):
+                ret += [(row, cp[1]),]
+            if col == cp[1] and not np.isnan(rm[row, cp[0]]):
+                ret += [(row, cp[0]),]            
+
+        # return []
+        return ret
 
     def path_rec(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
             ) -> List[Tuple[int, int]]:
@@ -177,9 +201,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
         
         self.outcome_graph = G
 
-        if c.SHOW_RESULT_SCHEDULE_GRAPH:
-            self.plot_schedule_graph()
-
     def schedule_as_list_of_scheduled_operations(self, rm: np.ndarray
             ) -> List[so]:
             
@@ -243,19 +264,8 @@ class InsertionBeam(ScheduleAlgorithmBase):
         
         self.schedule_as_graph(self.candidate_schedules[0])
 
-        return self.schedule_as_list_of_scheduled_operations(self.candidate_schedules[0])
-
-    def plot_schedule_graph(self):
-        from matplotlib import pyplot as plt
-
-        plt.figure(figsize=(12, 12))
-        pos = {
-            (x, y): (y + random.random() / 3, -x + random.random() / 3)
-            for x, y in self.outcome_graph.nodes()
-            }
-        
-        nx.draw(self.outcome_graph, pos=pos, with_labels=True)
-        plt.show()
+        return self.schedule_as_list_of_scheduled_operations(
+            self.candidate_schedules[0])
 
 
 ALGORITHM_CLASS_DICT = {

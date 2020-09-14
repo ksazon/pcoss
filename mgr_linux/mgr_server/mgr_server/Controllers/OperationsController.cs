@@ -17,8 +17,9 @@ namespace mgr_server.Controllers
         private static readonly object lockA = new object();
         private static readonly object lockB = new object();
         private static readonly object lockC = new object();
-        //private static Dictionary<string, object> lockDict = new Dictionary<string, object>();
-        private static ConcurrentDictionary<string, object> lockDict = new ConcurrentDictionary<string, object>(100, 20);
+        private static readonly object lockD = new object();
+
+        private static ConcurrentDictionary<int, object> lockDict = new ConcurrentDictionary<int, object>(100, 20);
 
         private readonly ILogger<OperationsController> _logger;
         private OperationsTimes _operationsTimes;
@@ -30,62 +31,71 @@ namespace mgr_server.Controllers
 
         [HttpGet]
         [Route("A/{machine}/{input}/{sleep}")]
-        public string GetA(string input, int sleep)
+        public long GetA(int machine, string input, int sleep)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             lock (lockA)
             {
                 Thread.Sleep(sleep);
-                return input.ToUpper();
             }
+            watch.Stop();
+            return watch.ElapsedMilliseconds;
         }
 
         [HttpGet]
         [Route("B/{machine}/{input}/{sleep}")]
-        public int GetB(int input, int sleep)
+        public long GetB(int machine, string input, int sleep)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             lock (lockB)
             {
                 Thread.Sleep(sleep);
-                return input * -1;
             }
+            watch.Stop();
+            return watch.ElapsedMilliseconds;
         }
 
         [HttpGet]
         [Route("C/{machine}/{input}/{sleep}")]
-        public float GetC(int input, int sleep)
+        public long GetC(int machine, string input, int sleep)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             lock (lockC)
             {
                 Thread.Sleep(sleep);
-                if (input == 0)
-                {
-                    return int.MaxValue;
-                }
-                return 1 / input;
             }
+            watch.Stop();
+            
+            return watch.ElapsedMilliseconds;
         }
 
         [HttpGet]
         [Route("D/{machine}/{input}/{sleep}")]
-        public int GetD(int input, int sleep)
+        public long GetD(int machine, string input, int sleep)
         {
-            lock (lockC)
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            lock (lockD)
             {
                 Thread.Sleep(sleep);
-                return (new Random()).Next();
             }
+            watch.Stop();
+            
+            return watch.ElapsedMilliseconds;
         }
 
         [HttpGet]
         [Route("0/{machine}/{input}/{sleep}")]
-        public int Get0(string machine, string input, int sleep)
+        public long Get0(int machine, string input, int sleep)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             lockDict.TryAdd(machine, new object());
             lock (lockDict[machine])
             {
                 Thread.Sleep(sleep);
-                return (new Random()).Next();
             }
+            watch.Stop();
+            
+            return watch.ElapsedMilliseconds;
         }
     }
 }

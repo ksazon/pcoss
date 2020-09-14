@@ -25,10 +25,14 @@ async def main():
     await sc.run()
     te = time.perf_counter()
 
-    print(f'Function "run" execution time: {te-ts:.3f}s')
+    if c.PRINT_TIMES:
+        print(f'Function "run" execution time: {te-ts:.3f}s')
+
+    if c.SHOW_RESULT_SCHEDULE_GRAPH:
+        h.plot_schedule_graph(sc.outcome_graph)
 
     if c.SHOW_GANTT:
-        sc.gantt_chart()
+        h.plot_gantt_chart(sc.schedule)
 
 
 if __name__ == '__main__':

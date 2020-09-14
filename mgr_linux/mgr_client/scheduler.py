@@ -31,7 +31,7 @@ class Scheduler:
         self._processing_times: pd.DataFrame = None
         self.algorithm = None
         self.objective = c.DEFAULT_OBJECTIVE
-        self._schedule: List[h.scheduled_operation] = []
+        self.schedule: List[h.scheduled_operation] = []
         # self._scheduler = sched.scheduler(time.time, time.sleep)
         self._session = aiohttp.ClientSession()
 
@@ -72,7 +72,7 @@ class Scheduler:
     
     @h.get_func_exec_time_decorator
     def _prepare_schedule(self):
-        self._schedule = (
+        self.schedule = (
             a.ALGORITHM_CLASS_DICT[self.algorithm]
             (self._processing_times, self.conflict_graph)
             .run()
@@ -84,20 +84,10 @@ class Scheduler:
 
     async def run(self):
         t0 = time.perf_counter()
-        # await asyncio.gather(*[
-        #     o.operation(
-        #         endpoint=self.column_operation_dict[so.machine],
-        #         item=self._table[so.job][so.machine],
-        #         sched_time=so.start_time,
-        #         end_time=so.end_time,
-        #         operation_duration=int(self._processing_times[so.job][so.machine]),
-        #         session=self._session,
-        #         ts=ts,
-        #         )
-        #     for so in self._schedule])
+
         al = []
-        for so in self._schedule:
-            so.endpoint = self.column_operation_dict[so.machine]
+        for so in self.schedule:
+            so.endpoint = '0'  # self.column_operation_dict[so.machine]
             so.item = self._table[so.job][so.machine]
             
             al.append(o.operation(so, self._session, t0))
@@ -110,26 +100,3 @@ class Scheduler:
             pass
         t3 = time.perf_counter()
         print(f't1-t0: {t1-t0}\tt2-t1: {t2-t1}\tt3-t2: {t3-t2}\tt3-t0: {t3-t0}')
-
-    def gantt_chart(self):
-        import plotly.express as px
-
-        def tramsform_opearation_time_to_date(operation_time: float):
-            beginning_date = pd.to_datetime('2020-01-01')
-
-            return beginning_date + pd.DateOffset(int(operation_time/1000))
-
-        # schedule_df = [
-        #     (j, m, st, st+self._processing_times[j][m])
-        #     for st, (j, m) in self._schedule
-        #     ]
-
-        schedule_df = pd.DataFrame([asdict(so) for so in self._schedule])
-
-        # df = pd.DataFrame(schedule_df, columns=['j', 'm', 'st', 'et'])
-        print(f'max et: {max(schedule_df.end_time)}')
-        schedule_df.start_time = schedule_df.start_time.apply(tramsform_opearation_time_to_date)
-        schedule_df.end_time = schedule_df.end_time.apply(tramsform_opearation_time_to_date)
-
-        fig = px.timeline(schedule_df, x_start="start_time", x_end="end_time", y="machine", color="job")
-        fig.show()
