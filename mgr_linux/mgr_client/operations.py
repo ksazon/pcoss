@@ -1,26 +1,35 @@
+import asyncio
+
+import aiohttp
 import requests
 import urllib3
-import asyncio
-import aiohttp
 
 import constants as c
+
+import time
+from helpers import scheduled_operation
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-async def operation(endpoint: str, item, sched_time: float = 0,
-        operation_duration: int = 0, session=None):
+async def operation(so: scheduled_operation, session, ts):
+    url = f'{c.BASE_URL}/{so.endpoint}/{so.machine}/{so.item}/{so.operation_duration-300}'
+    
+    it0 = time.perf_counter()
+    await asyncio.sleep(so.start_time/1000.0)
 
-    url = f'{c.BASE_URL}/{endpoint}/{item}/{operation_duration}'
-    
-    await asyncio.sleep(sched_time)
-    # async with session.get(url, verify=False) as resp:
-    async with session.get(url, ssl=False) as resp:
+    it1 = time.perf_counter()
+    async with session.get(url, ssl=False, timeout=600) as resp:
+        it2 = time.perf_counter()
         ret = await resp.text()
-    # ret = await requests.get(url, verify=False).content
-    
+
+    it3 = time.perf_counter()
+
     if c.PRINT_RESPONSES:
-        print(f'{endpoint=}\t{item=}\t{sched_time=}\t{operation_duration=}\t{ret=}')
+        # print(f'{so.endpoint=}\t{so.item=}\t{so.start_time=:.2f}\t{so.end_time=:.2f}\t{so.operation_duration=:.2f}\t{ret=}')
+        print(f'{so.endpoint=}\t{so.machine=}\t{so.start_time=:.2f}\t{so.end_time=:.2f}\t{so.operation_duration=:.2f}')
+        # print(f'it1-it0={it1-it0:.2f}\tit2-it1={it2-it1:.2f}\tit3-it2={it3-it2:.2f}\tit2-it0={it2-it0:.2f}\tit0-ts={it0-ts:.2f}')
+        print(f'it2-it1={it2-it1:.2f}')
     
     return ret
 

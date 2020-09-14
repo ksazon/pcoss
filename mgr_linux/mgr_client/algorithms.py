@@ -7,6 +7,8 @@ import pandas as pd
 
 import constants as c
 
+from helpers import scheduled_operation as so
+
 
 class ScheduleAlgorithmBase:
     def __init__(self, processing_times: pd.DataFrame,
@@ -16,8 +18,10 @@ class ScheduleAlgorithmBase:
         self.conflict_graph = conflict_graph
         self.candidate_schedules = [np.full(self.pt.shape, np.nan),]
 
-    def run(self):
+    def run(self) -> List[so]:
         raise NotImplementedError
+
+    outcome_graph: nx.DiGraph = None
 
 
 class Randomized(ScheduleAlgorithmBase):
@@ -52,26 +56,20 @@ class InsertionBeam(ScheduleAlgorithmBase):
         return first_order + other_order
         # return np.random.permutation(list(np.ndindex(self.pt.shape)))
 
-    
-    def solve_conflicting_ranks(self, rm: np.ndarray, changed_rows: Set[int],
-            changed_cols: Set[int]
-            ) -> np.ndarray:
+    def solve_conflicting_ranks(self, rm: np.ndarray,
+            changed_rows: Set[int], changed_cols: Set[int]) -> np.ndarray:
 
         new_changed_rows = set()
         new_changed_cols = set()
 
         for cr in changed_rows:
             for cc in changed_cols:
-                cv = rm[cr,cc]
+                cv = rm[cr, cc]
 
-                # for same_rank_cell_r in np.where(rm[:,cc] == cv)[0]:
-                #     if same_rank_cell_r == cr:
-                #         continue
-                #     new_changed_rows.add(cr)
-                #     new_changed_cols.add(cc)
-                #     rm[cr, cc] += 1
-                
-                for n in filter(lambda n: rm[n] == cv, self.conflict_graph[(cr, cc)]):
+                for n in filter(
+                        lambda n: rm[n] == cv,
+                        self.conflict_graph[(cr, cc)]):
+
                     new_changed_rows.add(n[0])
                     new_changed_cols.add(n[1])
                     rm[n] += 1
@@ -88,10 +86,10 @@ class InsertionBeam(ScheduleAlgorithmBase):
             ) -> List[Tuple[int, int]]:
         
         # TODO rewrite
-        if col == 2 and not np.isnan(rm[row,3]):
-            return [(row,3),]
-        if col == 3 and not np.isnan(rm[row,2]):
-            return [(row,2),]
+        if col == 2 and not np.isnan(rm[row, 3]):
+            return [(row, 3),]
+        if col == 3 and not np.isnan(rm[row, 2]):
+            return [(row, 2),]
         
         return []
 
@@ -99,30 +97,34 @@ class InsertionBeam(ScheduleAlgorithmBase):
             ) -> List[Tuple[int, int]]:
         
         step = 1 if asc else -1
-        next_val = rm[e]+step
-        next_e = next(filter(lambda n: rm[n] == next_val, self.conflict_graph[e]), None) 
+        next_val = rm[e] + step
+        next_e = next(
+            filter(lambda n: rm[n] == next_val, self.conflict_graph[e]),
+            None)
 
         if next_e:
             return [next_e] + self.path_rec(rm, next_e, asc)
 
         return []
 
-    def _path_rec(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
+    def path_while(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
             ) -> List[Tuple[int, int]]:
         
         cg = self.conflict_graph
         step = 1 if asc else -1
-        l = []
-        n = e
+        ret = []
+        next_e = e
 
-        while n:
-            next_val = rm[n]+step
-            n = next(filter(lambda nn: rm[nn] == next_val, cg[n]), None)
+        while next_e:
+            next_val = rm[next_e]+step
+            next_e = next(
+                filter(lambda n: rm[n] == next_val, cg[next_e]),
+                None)
 
-            if n:
-                l += [n]
+            if next_e:
+                ret += [next_e]
         
-        return l
+        return ret
 
     def get_path(self, rm: np.ndarray, added_element_idx: Tuple[int, int]
             ) -> List[Tuple[int, int]]:
@@ -151,33 +153,83 @@ class InsertionBeam(ScheduleAlgorithmBase):
             [:c.DEFAULT_BEAM_WIDTH]
             )
 
-    def schedule_as_list_of_tuples(self, rm: np.ndarray
-            ) -> List[Tuple[float, Tuple[int, int]]]:
-        scheduled_operations = []
-        cur_rank = 1
-        st = 0
-        
-        while len(scheduled_operations) < rm.size:
-            idxs = np.nonzero(rm==cur_rank)
-            for idx in np.transpose(idxs):
-                scheduled_operations.append((st, idx))
+    def schedule_as_graph(self, rm: np.ndarray):
+        max_rank = int(np.max(rm))
 
-            st += max(self.pt[idxs])
+        G = nx.DiGraph()
+
+        for from_rank in range(1, max_rank):
+            to_rank = from_rank + 1
+            to_idxs = np.nonzero(rm == to_rank)
+            
+            for to_idx in np.transpose(to_idxs):
+                same_job_idxs = [
+                    (to_idx[0], machine)
+                    for machine in np.nonzero(rm[to_idx[0], :] == from_rank)[0]
+                ]
+                same_machine_idxs = [
+                    (job, to_idx[1])
+                    for job in np.nonzero(rm[:, to_idx[1]] == from_rank)[0]
+                ]
+
+                for from_idx in same_job_idxs + same_machine_idxs:
+                    G.add_edge(from_idx, tuple(to_idx))
+        
+        self.outcome_graph = G
+
+        if c.SHOW_RESULT_SCHEDULE_GRAPH:
+            self.plot_schedule_graph()
+
+    def schedule_as_list_of_scheduled_operations(self, rm: np.ndarray
+            ) -> List[so]:
+            
+        scheduled_operations: List[so] = []
+        cur_rank = 1
+        st_mx = np.full(rm.shape, np.nan, dtype=object)
+        
+        while len(scheduled_operations) < rm.size: 
+            idxs = np.nonzero(rm == cur_rank)
+            
+            for idx in np.transpose(idxs):
+                if cur_rank == 1:
+                    prev_max_time = 0
+                else:
+                    prev_max_time = max(
+                        [s.end_time
+                        for s in st_mx[
+                            tuple(np.transpose([e[0]
+                            for e in self.outcome_graph.in_edges([tuple(idx)])]))]])
+                
+                end_time = prev_max_time + self.pt[idx[0]][idx[1]]
+
+                cur_so = so(
+                    rank=cur_rank,
+                    start_time=prev_max_time,
+                    end_time=end_time,
+                    operation_duration=self.pt[idx[0]][idx[1]],
+                    job=idx[0],
+                    machine=idx[1],
+                    endpoint=None,
+                    item=None,
+                    )
+                scheduled_operations.append(cur_so)
+                st_mx[idx[0]][idx[1]] = cur_so
+
             cur_rank += 1
         
         return scheduled_operations
 
-    def run(self) -> List[Tuple[float, Tuple[int, int]]]:
+    def run(self):
         for job, machine in self.insertion_order():
             candidate_schedules_with_children = []
             for cs in self.candidate_schedules:
                 potential_rank = set()
 
                 potential_rank.add(1)
-                for e in np.argwhere(~np.isnan(cs[:,machine])):
-                    potential_rank.add(cs[(e,machine)][0]+1)
+                for e in np.argwhere(~np.isnan(cs[:, machine])):
+                    potential_rank.add(cs[(e, machine)][0] + 1)
                 for cell in self.row_conflicts(cs, job, machine):
-                    potential_rank.add(cs[cell]+1)
+                    potential_rank.add(cs[cell] + 1)
 
                 for pr in potential_rank:
                     cs_with_child = cs.copy()
@@ -189,7 +241,21 @@ class InsertionBeam(ScheduleAlgorithmBase):
             self.candidate_schedules = self.beam_search(
                 candidate_schedules_with_children, (job, machine))
         
-        return self.schedule_as_list_of_tuples(self.candidate_schedules[0])
+        self.schedule_as_graph(self.candidate_schedules[0])
+
+        return self.schedule_as_list_of_scheduled_operations(self.candidate_schedules[0])
+
+    def plot_schedule_graph(self):
+        from matplotlib import pyplot as plt
+
+        plt.figure(figsize=(12, 12))
+        pos = {
+            (x, y): (y + random.random() / 3, -x + random.random() / 3)
+            for x, y in self.outcome_graph.nodes()
+            }
+        
+        nx.draw(self.outcome_graph, pos=pos, with_labels=True)
+        plt.show()
 
 
 ALGORITHM_CLASS_DICT = {

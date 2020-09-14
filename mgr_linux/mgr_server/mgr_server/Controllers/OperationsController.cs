@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,7 +17,8 @@ namespace mgr_server.Controllers
         private static readonly object lockA = new object();
         private static readonly object lockB = new object();
         private static readonly object lockC = new object();
-        private static Dictionary<string, object> lockDict = new Dictionary<string, object>();
+        //private static Dictionary<string, object> lockDict = new Dictionary<string, object>();
+        private static ConcurrentDictionary<string, object> lockDict = new ConcurrentDictionary<string, object>(100, 20);
 
         private readonly ILogger<OperationsController> _logger;
         private OperationsTimes _operationsTimes;
@@ -27,7 +29,7 @@ namespace mgr_server.Controllers
         }
 
         [HttpGet]
-        [Route("A/{input}/{sleep}")]
+        [Route("A/{machine}/{input}/{sleep}")]
         public string GetA(string input, int sleep)
         {
             lock (lockA)
@@ -38,7 +40,7 @@ namespace mgr_server.Controllers
         }
 
         [HttpGet]
-        [Route("B/{input}/{sleep}")]
+        [Route("B/{machine}/{input}/{sleep}")]
         public int GetB(int input, int sleep)
         {
             lock (lockB)
@@ -49,7 +51,7 @@ namespace mgr_server.Controllers
         }
 
         [HttpGet]
-        [Route("C/{input}/{sleep}")]
+        [Route("C/{machine}/{input}/{sleep}")]
         public float GetC(int input, int sleep)
         {
             lock (lockC)
@@ -64,7 +66,7 @@ namespace mgr_server.Controllers
         }
 
         [HttpGet]
-        [Route("D/{input}/{sleep}")]
+        [Route("D/{machine}/{input}/{sleep}")]
         public int GetD(int input, int sleep)
         {
             lock (lockC)
@@ -75,11 +77,11 @@ namespace mgr_server.Controllers
         }
 
         [HttpGet]
-        [Route("0/{input}/{sleep}")]
-        public int Get0(string input, int sleep)
+        [Route("0/{machine}/{input}/{sleep}")]
+        public int Get0(string machine, string input, int sleep)
         {
-            lockDict.TryAdd(input, new object());
-            lock (lockDict[input])
+            lockDict.TryAdd(machine, new object());
+            lock (lockDict[machine])
             {
                 Thread.Sleep(sleep);
                 return (new Random()).Next();

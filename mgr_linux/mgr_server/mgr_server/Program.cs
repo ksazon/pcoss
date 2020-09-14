@@ -13,6 +13,7 @@ namespace mgr_server
     {
         public static void Main(string[] args)
         {
+            System.Net.ServicePointManager.DefaultConnectionLimit = 1000;
             CreateHostBuilder(args).Build().Run();
         }
 

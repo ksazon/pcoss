@@ -4,14 +4,26 @@ import constants as c
 import helpers as h
 
 
+class Cfg:
+    def __init__(self, filepath: str):
+        self.index_cols = ['id',]
+        self.grouping_cols = ['gr1',]
+        self.conflicting_machines = {
+            (1, 2),
+            (5, 8),
+            (16, 19),
+            }
+        self.beam_width = 5
+
+
 class ProblemInput:
     def __init__(self):
-        cfg = h.Cfg('a')
+        cfg = Cfg('a')
 
         self.table_in = pd.read_csv(
             '../data/data2.csv',
             index_col=cfg.index_cols,
-            nrows=20,
+            nrows=5,
             usecols=lambda col: col not in cfg.grouping_cols)
 
         self.column_operation_dict = {}
@@ -36,3 +48,5 @@ class ProblemInput:
                 machine_cnt=machine_cnt,
                 conflicting_machines=cfg.conflicting_machines,
                 show=c.SHOW_CONFLICT_GRAPH))
+
+        self.processing_times = (self.table_in * 100) + 200
