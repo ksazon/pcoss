@@ -1,11 +1,13 @@
 import time
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from functools import wraps
 from random import random
 from typing import List, Set, Tuple
 
 import networkx as nx
 from matplotlib import pyplot as plt
+
+import constants as c
 
 
 def id_func(x):
@@ -54,7 +56,8 @@ def get_func_exec_time_decorator(f: callable):
         st = time.perf_counter()
         f(*args, **kwargs)
         et = time.perf_counter()
-        print(f'Function "{f.__name__}" exection time: {et-st:.3f}s')
+        if c.PRINT_METHOD_TIMES:
+            print(f'Function "{f.__name__}" exection time: {et-st:.3f}s')
 
     return wf
 
@@ -82,9 +85,13 @@ def plot_gantt_chart(schedule: List[scheduled_operation]):
 
     schedule_df = pd.DataFrame([asdict(so) for so in schedule])
 
-    print(f'max et: {max(schedule_df.end_time)}')
-    schedule_df.start_time = schedule_df.start_time.apply(tramsform_opearation_time_to_date)
-    schedule_df.end_time = schedule_df.end_time.apply(tramsform_opearation_time_to_date)
+    if c.PRINT_DEBUG_MESSSAGES:
+        print(f'max et: {max(schedule_df.end_time)}')
+
+    schedule_df.start_time = schedule_df.start_time.apply(
+        tramsform_opearation_time_to_date)
+    schedule_df.end_time = schedule_df.end_time.apply(
+        tramsform_opearation_time_to_date)
 
     fig = px.timeline(
         schedule_df,
@@ -106,3 +113,11 @@ def plot_schedule_graph(graph: nx.DiGraph):
     
     nx.draw(self.outcome_graph, pos=pos, with_labels=True)
     plt.show()
+
+
+@dataclass
+class Measurement:
+    admission_time: int
+    server_ret: float
+    request_processing_time: float
+    release_time: int

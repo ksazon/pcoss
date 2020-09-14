@@ -1,6 +1,7 @@
 import asyncio
 # import sched
 import time
+from dataclasses import asdict
 from typing import Dict, List, Tuple
 
 import aiohttp
@@ -12,8 +13,7 @@ import algorithms as a
 import constants as c
 import helpers as h
 import operations as o
-
-from dataclasses import asdict
+from create_problem_input import ProblemInput
 
 
 class Scheduler:
@@ -99,4 +99,9 @@ class Scheduler:
         except Exception as e:
             pass
         t3 = time.perf_counter()
-        print(f't1-t0: {t1-t0}\tt2-t1: {t2-t1}\tt3-t2: {t3-t2}\tt3-t0: {t3-t0}')
+        if c.PRINT_DEBUG_MESSSAGES:
+            print(f't1-t0: {t1-t0}\tt2-t1: {t2-t1}\tt3-t2: {t3-t2}\tt3-t0: {t3-t0}')
+
+    @classmethod
+    def from_toml(cls, toml_file):
+        config_dict = ProblemInput.from_toml(toml_file)

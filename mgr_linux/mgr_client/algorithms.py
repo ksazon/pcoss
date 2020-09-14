@@ -35,6 +35,7 @@ class ScheduleAlgorithmBase:
 class Randomized(ScheduleAlgorithmBase):
     def insertion_order(self):
         return np.random.permutation(list(np.ndindex(self.pt.shape)))
+
     def run(self):
         return [
             (random.random() * 5, (r_idx, c_idx))
@@ -93,18 +94,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
     def row_conflicts(self, rm: np.ndarray, row: int, col: int
             ) -> List[Tuple[int, int]]:
-        
-        # ret = (
-        #     [(row, cp[1]) for cp in self.row_conflicts_set if cp[0] == col and np.isnan(rm[row, cp[1]])]
-        #     + [(row, cp[0]) for cp in self.row_conflicts_set if cp[1] == col and np.isnan(rm[row, cp[0]])]
-        # )
-        # return (
-        #     [(row, cp[1]) for cp in self.row_conflicts_set if cp[0] == col]
-        #     + [(row, cp[0]) for cp in self.row_conflicts_set if cp[1] == col]
-        # )
-        # for c0, c1 in self.row_conflicts:
-        #     if col == c0 and not np.isnan(rm[row, c1]):
-        #         return [(row, c1)]
 
         ret = []
 
@@ -114,7 +103,6 @@ class InsertionBeam(ScheduleAlgorithmBase):
             if col == cp[1] and not np.isnan(rm[row, cp[0]]):
                 ret += [(row, cp[0]),]            
 
-        # return []
         return ret
 
     def path_rec(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
@@ -172,8 +160,12 @@ class InsertionBeam(ScheduleAlgorithmBase):
             cost = sum(self.pt[jobs, machines])
             rm_costs[rm_idx] = cost
 
-        return ([rm_list[k] for k, v in
-            sorted(rm_costs.items(), key=lambda e: e[1])]
+        return (
+            [
+                rm_list[k]
+                for k, v in
+                sorted(rm_costs.items(), key=lambda e: e[1])
+            ]
             [:c.DEFAULT_BEAM_WIDTH]
             )
 
