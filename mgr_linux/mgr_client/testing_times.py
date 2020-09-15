@@ -30,7 +30,7 @@ async def main():
         sc.prepare()
         te = time.perf_counter()
 
-        times.append((pf, te-ts))
+        times.append((pf, te-ts, max([e.end_time for e in sc.schedule])))
     
     pd.DataFrame(times).to_csv('testing_times.csv')
 
