@@ -88,11 +88,14 @@ namespace mgr_server.Controllers
         public long Get0(int machine, string input, int sleep)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
+            
             lockDict.TryAdd(machine, new object());
+
             lock (lockDict[machine])
             {
                 Thread.Sleep(sleep);
             }
+
             watch.Stop();
             
             return watch.ElapsedMilliseconds;

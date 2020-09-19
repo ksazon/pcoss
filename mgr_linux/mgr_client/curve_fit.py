@@ -10,3 +10,4 @@ r = [f(i, 3, 10, 2) + 0.2 * random() for i in range(5)]
 p1, p2 = curve_fit(f, xdata=range(5), ydata=r)
 
 print(p1)
+

@@ -107,11 +107,11 @@ def plot_gantt_chart(schedule: List[scheduled_operation]):
 def plot_schedule_graph(graph: nx.DiGraph):
     plt.figure(figsize=(12, 12))
     pos = {
-        (x, y): (y + random.random() / 3, -x + random.random() / 3)
-        for x, y in self.outcome_graph.nodes()
+        (x, y): (y + random() / 3, -x + random() / 3)
+        for x, y in graph.nodes()
         }
     
-    nx.draw(self.outcome_graph, pos=pos, with_labels=True)
+    nx.draw(graph, pos=pos, with_labels=True)
     plt.show()
 
 

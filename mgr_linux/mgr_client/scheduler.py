@@ -91,6 +91,7 @@ class Scheduler:
             so.item = self._table[so.job][so.machine]
             
             al.append(o.operation(so, self._session, t0))
+            
         t1 = time.perf_counter()
         await asyncio.gather(*al)
         t2 = time.perf_counter()

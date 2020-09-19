@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 import constants as c
+import helpers as h
 from helpers import scheduled_operation as so
 
 
@@ -192,6 +193,9 @@ class InsertionBeam(ScheduleAlgorithmBase):
                     G.add_edge(from_idx, tuple(to_idx))
         
         self.outcome_graph = G
+        
+        if c.SHOW_RESULT_SCHEDULE_GRAPH:
+            h.plot_schedule_graph(self.outcome_graph)
 
     def schedule_as_list_of_scheduled_operations(self, rm: np.ndarray
             ) -> List[so]:

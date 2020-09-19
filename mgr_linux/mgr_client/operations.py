@@ -1,15 +1,13 @@
 import asyncio
+import time
 
 import aiohttp
 import requests
 import urllib3
 
 import constants as c
-
-import time
-from helpers import scheduled_operation, Measurement
-
 import output
+from helpers import Measurement, scheduled_operation
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -23,7 +21,7 @@ async def operation(so: scheduled_operation, session, ts):
         release_time=None,
         )
 
-    url = f'{c.BASE_URL}/{so.endpoint}/{so.machine}/{so.item}/{so.operation_duration-1000}'
+    url = f'{c.BASE_URL}/{so.endpoint}/{so.machine}/{int(so.item)}/{int(so.operation_duration-1000)}'
     
     await asyncio.sleep(so.start_time/1000.0)
 
