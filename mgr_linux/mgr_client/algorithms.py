@@ -16,7 +16,7 @@ class ScheduleAlgorithmBase:
 
         self.pt = processing_times
         self.conflict_graph = conflict_graph
-        self.candidate_schedules = [np.full(self.pt.shape, np.nan),]
+        self.candidate_schedules = [np.full(self.pt.shape, np.nan)]
         self.row_conflicts_set = {
             (o0[1], o1[1])
             for (o0, o1) in filter(
@@ -54,7 +54,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
         for row_idx in range(min_shape):
             max_col_idx = np.argmax(pt_trimmed[row_idx, :])
-            first_order += [(row_idx, max_col_idx),]
+            first_order += [(row_idx, max_col_idx)]
             pt_trimmed = np.delete(pt_trimmed, max_col_idx, axis=1)
         
         other_order = [(x[0], x[1]) for x in filter(
@@ -100,9 +100,9 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
         for cp in self.row_conflicts_set:
             if col == cp[0] and not np.isnan(rm[row, cp[1]]):
-                ret += [(row, cp[1]),]
+                ret += [(row, cp[1])]
             if col == cp[1] and not np.isnan(rm[row, cp[0]]):
-                ret += [(row, cp[0]),]            
+                ret += [(row, cp[0])]            
 
         return ret
 

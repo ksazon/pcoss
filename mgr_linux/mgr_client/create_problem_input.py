@@ -9,8 +9,8 @@ import toml
 
 # class Cfg:
 #     def __init__(self, filepath: str):
-#         self.index_cols = ['id',]
-#         self.grouping_cols = ['gr1',]
+#         self.index_cols = ['id']
+#         self.grouping_cols = ['gr1']
 #         self.conflicting_machines = {
 #             (1, 2),
 #             (5, 8),
@@ -36,7 +36,7 @@ class ProblemInput:
         TODO remove -start
         '''
         self.column_operation_dict = {}
-        avaliable_operations_list = ['A', 'B', 'C',]
+        avaliable_operations_list = ['A', 'B', 'C']
 
         use_operation_num = 0
 
@@ -70,6 +70,7 @@ class ProblemInput:
             usecols=lambda col: col not in init_dict['problem_data']['grouping_cols'],
             ) * 100 + 1000
         
+        self.conflicting_machines_list = init_dict['problem_data']['conflicting_machines']
         
         # (self.table_in * 100) + 1000
 
@@ -87,7 +88,7 @@ class ProblemInput:
     #         usecols=lambda col: col not in cfg.grouping_cols)
 
     #     self.column_operation_dict = {}
-    #     avaliable_operations_list = ['A', 'B', 'C',]
+    #     avaliable_operations_list = ['A', 'B', 'C']
 
     #     use_operation_num = 0
 
@@ -118,7 +119,7 @@ class ProblemInput:
     #         usecols=lambda col: col not in cfg.grouping_cols)
 
     #     self.column_operation_dict = {}
-    #     avaliable_operations_list = ['A', 'B', 'C',]
+    #     avaliable_operations_list = ['A', 'B', 'C']
 
     #     use_operation_num = 0
 
