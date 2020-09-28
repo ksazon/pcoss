@@ -10,6 +10,27 @@ from matplotlib import pyplot as plt
 import constants as c
 
 
+@dataclass
+class Measurement:
+    admission_time: int
+    server_ret: float
+    request_processing_time: float
+    release_time: int
+
+
+@dataclass
+class scheduled_operation:
+    rank: int
+    start_time: float
+    end_time: float
+    operation_duration: float
+    job: int
+    machine: int
+    endpoint: str
+    item: object
+    base_url: str
+
+
 def id_func(x):
     return x
 
@@ -62,21 +83,9 @@ def get_func_exec_time_decorator(f: callable):
     return wf
 
 
-@dataclass
-class scheduled_operation:
-    rank: int
-    start_time: float
-    end_time: float
-    operation_duration: float
-    job: int
-    machine: int
-    endpoint: str
-    item: object
-
-
 def plot_gantt_chart(schedule: List[scheduled_operation]):
-    import plotly.express as px
     import pandas as pd
+    import plotly.express as px
 
     def tramsform_opearation_time_to_date(operation_time: float):
         beginning_date = pd.to_datetime('2020-01-01')
@@ -113,11 +122,3 @@ def plot_schedule_graph(graph: nx.DiGraph):
     
     nx.draw(graph, pos=pos, with_labels=True)
     plt.show()
-
-
-@dataclass
-class Measurement:
-    admission_time: int
-    server_ret: float
-    request_processing_time: float
-    release_time: int

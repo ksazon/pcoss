@@ -8,12 +8,14 @@ import pandas as pd
 import constants as c
 import helpers as h
 from helpers import scheduled_operation as so
+from problem_input import ProblemInput
 
 
 class ScheduleAlgorithmBase:
     def __init__(self, processing_times: pd.DataFrame,
-            conflict_graph: nx.Graph):
+            conflict_graph: nx.Graph, problem_input: ProblemInput):
 
+        self.problem_input = problem_input
         self.pt = processing_times
         self.conflict_graph = conflict_graph
         self.candidate_schedules = [np.full(self.pt.shape, np.nan)]
@@ -167,7 +169,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
                 for k, v in
                 sorted(rm_costs.items(), key=lambda e: e[1])
             ]
-            [:c.DEFAULT_BEAM_WIDTH]
+            [:self.problem_input.beam_width]
             )
 
     def schedule_as_graph(self, rm: np.ndarray):
@@ -194,7 +196,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
         self.outcome_graph = G
 
-        if c.SHOW_RESULT_SCHEDULE_GRAPH:
+        if self.problem_input.show_result_schedule_graph:
             h.plot_schedule_graph(self.outcome_graph)
 
     def schedule_as_list_of_scheduled_operations(self, rm: np.ndarray
@@ -220,6 +222,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
                 end_time = prev_max_time + self.pt[idx[0]][idx[1]]
 
                 cur_so = so(
+                    base_url=self.problem_input.base_url,
                     rank=cur_rank,
                     start_time=prev_max_time,
                     end_time=end_time,

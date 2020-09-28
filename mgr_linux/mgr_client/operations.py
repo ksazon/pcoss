@@ -21,7 +21,7 @@ async def operation(so: scheduled_operation, session, ts):
         release_time=None,
         )
 
-    url = f'{c.BASE_URL}/{so.endpoint}/{so.machine}/{int(so.item)}/{int(so.operation_duration-1000)}'
+    url = f'{so.base_url}/{so.endpoint}/{so.machine}/{int(so.item)}/{int(so.operation_duration-1000)}'
     
     await asyncio.sleep(so.start_time/1000.0)
 
@@ -50,34 +50,6 @@ async def operation(so: scheduled_operation, session, ts):
     
     output.output_dict.update({(so.job, so.machine): (so, me)})
 
-    return ret
-
-
-async def operation_a(x):
-    ret = await requests.get(f'{c.BASE_URL}/A/{x}/0', verify=False).content
-    if c.PRINT_RESPONSES:
-        print('a', ret)
-    return ret
-
-
-async def operation_b(x):
-    ret = await requests.get(f'{c.BASE_URL}/B/{x}/0', verify=False).content
-    if c.PRINT_RESPONSES:
-        print('b', ret)
-    return ret
-
-
-async def operation_c(x):
-    ret = await requests.get(f'{c.BASE_URL}/C/{x}/0', verify=False).content
-    if c.PRINT_RESPONSES:
-        print('c', ret)
-    return ret
-
-
-async def operation_0(x):
-    ret = await requests.get(f'{c.BASE_URL}/0/{x}/0', verify=False).content
-    if c.PRINT_RESPONSES:
-        print('0', ret)
     return ret
 
 

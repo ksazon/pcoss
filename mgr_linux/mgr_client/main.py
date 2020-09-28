@@ -1,45 +1,44 @@
+import argparse
 import asyncio
 import time
 from typing import List, Set, Tuple
 
-# import pandas as pd
-
-# import algorithms as a
 import constants as c
-import create_problem_input as cpi
 import helpers as h
-# import operations as o
 import output
 import scheduler as s
+from problem_input import ProblemInput
 
 
 async def main():
-    problem_files = {
-        0: '../data/auto/64j4m0.toml',
-        1: '../data/auto/32j4m0.toml',
-        2: '../data/auto/8j4m0.toml',
-    }
+    ap = argparse.ArgumentParser()
+    ap.add_argument("toml_file", help="Path to the TOML file to be used", type=str)
+    args = ap.parse_args()
 
-    pi = cpi.ProblemInput.from_toml(problem_files[2])
+    pi = ProblemInput.from_toml(args.toml_file)
+    c.PRINT_METHOD_TIMES = pi.print_method_times
+    
+    sc = s.Scheduler.from_ProblemInput(pi)
 
-    sc = s.Scheduler(pi.table_in)
-    sc.column_operation_dict = pi.column_operation_dict
-    sc.conflict_graph = pi.conflict_graph_in
-    sc.processing_times = pi.processing_times
     sc.prepare()
     
-    if c.SHOW_GANTT:
+    if pi.show_gantt_plot:
         h.plot_gantt_chart(sc.schedule)
 
     ts = time.perf_counter()
     await sc.run()
     te = time.perf_counter()
 
-    if c.PRINT_METHOD_TIMES:
+    if pi.print_method_times:
         print(f'Function "run" execution time: {te-ts:.3f}s')
 
     # print(output.output_dict)
 
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+    (asyncio
+        .get_event_loop()
+        .run_until_complete(
+            main()
+        )
+    )

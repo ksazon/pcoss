@@ -1,14 +1,24 @@
 title = "8j8m0"
 info = "8 jobs 8 machines example 0"
 
-[files ]
+[files]
 data = "../data/auto/8j8m0.csv"
 processing_times = "../data/auto/8j8m0.csv"
 
-[problem_data ]
-index_cols = [ ]
-grouping_cols = [ ]
-conflicting_machines = [ [ 1, 2, ], [ 5, 7, ], ]
+[problem_data]
+index_cols = []
+grouping_cols = []
+conflicting_machines = [ [ 1, 2 ], [ 5, 7 ] ]
+base_url = "https://localhost:44320/Operations"
 
-[algorithm_config ]
-beam_witdh = 5
+[algorithm_config]
+algorithm_name = "insertion_beam"
+objective = "cmax"
+beam_width = 5
+
+[display_config]
+print_responses = true
+print_method_times = true
+show_conflict_graph = true
+show_result_schedule_graph = true
+show_gantt_plot = true
