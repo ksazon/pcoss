@@ -12,6 +12,6 @@
 * przygotować plik TOML zgodnie z szablonem znajdującym się w folderze `data` (można również skorzystać z gotowych plików z folderu `data\auto`)
   jeżeli nie zostanie podany prawidłowy adres serwera, program zaproponuje uszeregowanie, ale nie będzie w stanie go wykonać
 * uruchomić scheduler, na przykład z linii komend, za pomocą polecenia  
-  (ścieżka do folderu mgr_client)\main.py (ścieżka do przygotowanego pliku w formacie TOML)  
+  `(ścieżka do folderu mgr_client)\main.py (ścieżka do przygotowanego pliku w formacie TOML)`
   np  
   `c:\git\mgr\mgr_linux\mgr_client\main.py ../data/auto/8j8m0.toml`  
