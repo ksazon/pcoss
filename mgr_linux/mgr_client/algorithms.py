@@ -26,7 +26,7 @@ class ScheduleAlgorithmBase:
 
     def insertion_order(self) -> List[Tuple[int, int]]:
         raise NotImplementedError
-    
+
     def run(self) -> List[so]:
         raise NotImplementedError
 
@@ -56,7 +56,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
             max_col_idx = np.argmax(pt_trimmed[row_idx, :])
             first_order += [(row_idx, max_col_idx)]
             pt_trimmed = np.delete(pt_trimmed, max_col_idx, axis=1)
-        
+
         other_order = [(x[0], x[1]) for x in filter(
             lambda e: (e[0], e[1]) not in first_order,
             np.transpose(
@@ -84,13 +84,13 @@ class InsertionBeam(ScheduleAlgorithmBase):
                     new_changed_rows.add(n[0])
                     new_changed_cols.add(n[1])
                     rm[n] += 1
-        
+
         if new_changed_rows:
             return self.solve_conflicting_ranks(
                 rm,
                 new_changed_rows,
                 new_changed_cols)
-        
+
         return rm
 
     def row_conflicts(self, rm: np.ndarray, row: int, col: int
@@ -102,13 +102,13 @@ class InsertionBeam(ScheduleAlgorithmBase):
             if col == cp[0] and not np.isnan(rm[row, cp[1]]):
                 ret += [(row, cp[1])]
             if col == cp[1] and not np.isnan(rm[row, cp[0]]):
-                ret += [(row, cp[0])]            
+                ret += [(row, cp[0])]
 
         return ret
 
     def path_rec(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
             ) -> List[Tuple[int, int]]:
-        
+
         step = 1 if asc else -1
         next_val = rm[e] + step
         next_e = next(
@@ -122,7 +122,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
     def path_while(self, rm: np.ndarray, e: Tuple[int, int], asc: bool
             ) -> List[Tuple[int, int]]:
-        
+
         cg = self.conflict_graph
         step = 1 if asc else -1
         ret = []
@@ -136,12 +136,12 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
             if next_e:
                 ret += [next_e]
-        
+
         return ret
 
     def get_path(self, rm: np.ndarray, added_element_idx: Tuple[int, int]
             ) -> List[Tuple[int, int]]:
-        
+
         pr = self.path_rec
 
         return (
@@ -178,7 +178,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
         for from_rank in range(1, max_rank):
             to_rank = from_rank + 1
             to_idxs = np.nonzero(rm == to_rank)
-            
+
             for to_idx in np.transpose(to_idxs):
                 same_job_idxs = [
                     (to_idx[0], machine)
@@ -191,22 +191,22 @@ class InsertionBeam(ScheduleAlgorithmBase):
 
                 for from_idx in same_job_idxs + same_machine_idxs:
                     G.add_edge(from_idx, tuple(to_idx))
-        
+
         self.outcome_graph = G
-        
+
         if c.SHOW_RESULT_SCHEDULE_GRAPH:
             h.plot_schedule_graph(self.outcome_graph)
 
     def schedule_as_list_of_scheduled_operations(self, rm: np.ndarray
             ) -> List[so]:
-            
+
         scheduled_operations: List[so] = []
         cur_rank = 1
         st_mx = np.full(rm.shape, np.nan, dtype=object)
-        
-        while len(scheduled_operations) < rm.size: 
+
+        while len(scheduled_operations) < rm.size:
             idxs = np.nonzero(rm == cur_rank)
-            
+
             for idx in np.transpose(idxs):
                 if cur_rank == 1:
                     prev_max_time = 0
@@ -216,7 +216,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
                         for s in st_mx[
                             tuple(np.transpose([e[0]
                             for e in self.outcome_graph.in_edges([tuple(idx)])]))]])
-                
+
                 end_time = prev_max_time + self.pt[idx[0]][idx[1]]
 
                 cur_so = so(
@@ -233,7 +233,7 @@ class InsertionBeam(ScheduleAlgorithmBase):
                 st_mx[idx[0]][idx[1]] = cur_so
 
             cur_rank += 1
-        
+
         return scheduled_operations
 
     def run(self):
@@ -254,10 +254,10 @@ class InsertionBeam(ScheduleAlgorithmBase):
                     cs_with_child = self.solve_conflicting_ranks(
                         cs_with_child, {job,}, {machine,})
                     candidate_schedules_with_children.append(cs_with_child)
-            
+
             self.candidate_schedules = self.beam_search(
                 candidate_schedules_with_children, (job, machine))
-        
+
         self.schedule_as_graph(self.candidate_schedules[0])
 
         return self.schedule_as_list_of_scheduled_operations(

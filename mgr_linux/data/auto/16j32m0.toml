@@ -1,0 +1,14 @@
+title = "16j32m0"
+info = "16 jobs 32 machines example 0"
+
+[files ]
+data = "../data/auto/16j32m0.csv"
+processing_times = "../data/auto/16j32m0.csv"
+
+[problem_data ]
+index_cols = [ ]
+grouping_cols = [ ]
+conflicting_machines = [ [ 1, 2, ], [ 5, 7, ], [ 9, 10, ], [ 13, 14, ], [ 15, 16, ], [ 17, 18, ], [ 20, 25, ], [ 27, 30, ], ]
+
+[algorithm_config ]
+beam_witdh = 5

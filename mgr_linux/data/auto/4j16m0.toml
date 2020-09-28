@@ -1,14 +1,14 @@
 title = "4j16m0"
 info = "4 jobs 16 machines example 0"
 
-[files]
+[files ]
 data = "../data/auto/4j16m0.csv"
 processing_times = "../data/auto/4j16m0.csv"
 
-[problem_data]
-index_cols = []
-grouping_cols = []
-conflicting_machines = [ [ 1, 2 ], [ 5, 7 ], [ 9, 10 ], [ 13, 14 ] ]
+[problem_data ]
+index_cols = [ ]
+grouping_cols = [ ]
+conflicting_machines = [ [ 1, 2, ], [ 5, 7, ], [ 9, 10, ], [ 13, 14, ], ]
 
-[algorithm_config]
+[algorithm_config ]
 beam_witdh = 5
