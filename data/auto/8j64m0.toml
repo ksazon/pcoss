@@ -2,8 +2,8 @@ title = "8j64m0"
 info = "8 jobs 64 machines example 0"
 
 [files]
-data = "../data/auto/8j64m0.csv"
-processing_times = "../data/auto/8j64m0.csv"
+data = "8j64m0.csv"
+processing_times = "8j64m0.csv"
 
 [problem_data]
 index_cols = []
