@@ -1,0 +1,44 @@
+# tytuł konfiguracji
+title = "64j8m0"
+# zwięzły opis konfiguracji
+info = "64 jobs 8 machines example 0"
+
+# dane o plikach z danymi, w formie ścieżki absolutnej lub relatywnej względem folderu z którego uruchamiany jest program
+[files]
+# plik z danymi do przetworzenia
+data = "../data/auto/64j8m0.csv"
+# plik z czasami przetwatrzani
+processing_times = "../data/auto/64j8m0.csv"
+
+# opis problemu
+[problem_data]
+# kolumna / kolumny indeksu (domyślnie puste)
+index_cols = []
+# kolumna / kolumny do grupowania (domyślnie puste)
+grouping_cols = []
+# konfliktujące ze sobą pary kolumn (domyślnie puste)
+conflicting_machines = [ [ 1, 2 ], [ 5, 7 ] ]
+# adres serwera wykonującego operacje
+base_url = "https://localhost:5001/Operations/0/"
+
+# konfiguracja schedulera
+[algorithm_config]
+# nazwa algorytmu do wykorzystania
+algorithm_name = "insertion_beam"
+# funkcja kosztu
+objective = "cmax"
+# szerokość wiązki szukającej
+beam_width = 5
+
+# konfiguracja wyświetlania
+[display_config]
+# wypisywanie odpowiedzi serwera na ekran
+print_responses = true
+# wypisywanie czasów wykonywania poszczególnych funkcji na ekran
+print_method_times = false
+# rysowanie grafu konfliktu
+show_conflict_graph = false
+# rysowanie grafu z uszeregowaniem
+show_result_schedule_graph = false
+# rysowanie wkresu Gantta
+show_gantt_plot = false

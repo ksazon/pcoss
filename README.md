@@ -4,14 +4,14 @@
 
 ### Sposób uruchomienia
 
-* pobrać skrypty z folderu `mgr_client`
-* uruchomić serwer (kod źródłowy w katalogu `mgr_server`, wybudowany projekt w `mgr_server\mgr_server\bin\Release\netcoreapp3.1\mgr_server.exe`), za pomocą:     
-  * skorzystania z wymienionego pliku binarnego (zauważono pewne problemy z dostępem równoległym w ten sposób, perferowaną metodą jest uruchamianie za pomocą Visual Studio),
-  * za pomocą uruchomienia aplikacji IIS (zgodnie z instrukcjami tutaj [Instrukcje IIS](https://docs.microsoft.com/pl-pl/aspnet/core/host-and-deploy/iis/?view=aspnetcore-3.1)),
-  * za pomocą uruchomienia projektu z poziomu programu Visual Studio lub podobnego
-* przygotować plik TOML zgodnie z szablonem znajdującym się w folderze `data` (można również skorzystać z gotowych plików z folderu `data\auto`)
+* zainstalować interpreter Python w wersji nowszej niż 3.8
+* zainstalować moduł `pcoss_scheduler_pkg`, na przykład za pomocą `pip install pcoss-scheduler-pkg-ksazon`
+* uruchomić serwer (kod źródłowy w katalogu `mgr_server`, wybudowany projekt w `mgr_server\mgr_server\bin\Release\netcoreapp3.1\`), za pomocą:     
+  * uruchomienia aplikacji IIS na systemie Windows Server (zgodnie z instrukcjami tutaj [Instrukcje IIS](https://docs.microsoft.com/pl-pl/aspnet/core/host-and-deploy/iis/?view=aspnetcore-3.1)),
+  * za pomocą uruchomienia projektu z poziomu programu Visual Studio 2019 lub innego IDE obsługującego framework .Net Core w wersji 3.1
+* przygotować plik TOML zgodnie z szablonem znajdującym się w `data\sample.toml` (można również skorzystać z gotowych plików z folderu `data\auto`)  
   jeżeli nie zostanie podany prawidłowy adres serwera, program zaproponuje uszeregowanie, ale nie będzie w stanie go wykonać
-* uruchomić scheduler, na przykład z linii komend, za pomocą polecenia  
-  `(ścieżka do folderu mgr_client)\main.py (ścieżka do przygotowanego pliku w formacie TOML)`
+* uruchomić scheduler, na przykład z linii komend, za pomocą polecenia 
+  `python -m pcoss_scheduler_pkg "[ścieżka do przygotowanego pliku w formacie TOML]"`  
   np  
-  `c:\git\mgr\mgr_linux\mgr_client\main.py ../data/auto/8j8m0.toml`  
+  `python -m pcoss_scheduler_pkg "8j8m0.toml"`  
