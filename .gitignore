@@ -517,4 +517,4 @@ cython_debug/
 .history/
 
 
-mgr_linux/prace
+prace/
