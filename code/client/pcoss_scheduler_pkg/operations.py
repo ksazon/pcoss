@@ -48,7 +48,7 @@ async def operation(so: scheduled_operation, session, ts):
         print(f'{so.endpoint=}\t{so.machine=}\t{so.start_time=:.2f}\t{so.end_time=:.2f}\t{so.operation_duration=:.2f}')
         print(f'{error_symbol if me.request_processing_time > so.operation_duration else ok_symbol}\tit2-it1={me.request_processing_time:.2f}')
     
-    output.output_dict.update({(so.job, so.machine): (so, me)})
+    pcoss_scheduler_pkg.output.output_dict.update({(so.job, so.machine): (so, me)})
 
     return ret
 
