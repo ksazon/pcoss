@@ -2,12 +2,13 @@ title = "64j8m0"
 info = "64 jobs 8 machines example 0"
 
 [files]
-data = "C:\\git\\mgr\\data\\auto\\64j8m0_data.csv"
-processing_times = "C:\\git\\mgr\\data\\auto\\64j8m0_pt.csv"
+data = "./64j8m0_data.csv"
+processing_times = "./64j8m0_pt.csv"
 
 [problem_data]
 index_cols = []
 grouping_cols = []
+grouping_func_name = ""
 conflicting_machines = [ [ 1, 2 ], [ 5, 7 ] ]
 base_url = "https://rapid-sphinx-291111.ey.r.appspot.com/Operations"
 

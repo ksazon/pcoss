@@ -21,7 +21,8 @@ async def operation(so: scheduled_operation, session, ts):
         release_time=None,
         )
 
-    url = f'{so.base_url}/{so.endpoint}/{so.machine}/{int(so.item)}/{int(so.operation_duration-1000)}'
+    op_time = max(0, int(so.operation_duration-c.DEFAULT_ADDED_TIME_MS))
+    url = f'{so.base_url}/{so.endpoint}/{so.machine}/{int(so.item)}/{op_time}'
     
     await asyncio.sleep(so.start_time/1000.0)
 

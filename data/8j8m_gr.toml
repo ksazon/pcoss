@@ -2,13 +2,23 @@ title = "8j8m0"
 info = "8 jobs 8 machines example 0"
 
 [files]
-data = "./8j8m0_data.csv"
-processing_times = "./8j8m0_pt.csv"
+data = "C:\\git\\mgr\\data\\auto\\8j8m0_data.csv"
+# processing_times = "C:\\git\\mgr\\data\\auto\\8j8m0_pt.csv"
 
 [problem_data]
 index_cols = []
-grouping_cols = []
-grouping_func_name = ""
+complexity_list = [
+    "lambda x: 0*x",
+    "lambda x: 1*x",
+    "lambda x: 2*x",
+    "lambda x: 3*x",
+    "lambda x: 4*x",
+    "lambda x: 5*x",
+    "lambda x: 6*x",
+    "lambda x: 7*x"
+    ]
+grouping_cols = [ 0 ]
+grouping_func_name = "min"
 conflicting_machines = [ [ 1, 2 ], [ 5, 7 ] ]
 base_url = "https://rapid-sphinx-291111.ey.r.appspot.com/Operations"
 

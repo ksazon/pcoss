@@ -2,12 +2,13 @@ title = "32j16m0"
 info = "32 jobs 16 machines example 0"
 
 [files]
-data = "C:\\git\\mgr\\data\\auto\\32j16m0_data.csv"
-processing_times = "C:\\git\\mgr\\data\\auto\\32j16m0_pt.csv"
+data = "./32j16m0_data.csv"
+processing_times = "./32j16m0_pt.csv"
 
 [problem_data]
 index_cols = []
 grouping_cols = []
+grouping_func_name = ""
 conflicting_machines = [ [ 1, 2 ], [ 5, 7 ], [ 9, 10 ], [ 13, 14 ] ]
 base_url = "https://rapid-sphinx-291111.ey.r.appspot.com/Operations"
 

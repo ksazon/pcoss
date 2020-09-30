@@ -2,12 +2,36 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "py_cf",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["../../data/auto/4j8m0.toml"]
+            "args": []
+        },
+        {
+            "name": "auto_8j16m",
+            "type": "python",
+            "request": "launch",
+            "program": "./pcoss_scheduler_pkg/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["../../data/auto/8j16m0.toml"]
+        },
+        {
+            "name": "auto_4j4m",
+            "type": "python",
+            "request": "launch",
+            "program": "./pcoss_scheduler_pkg/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["../../data/auto/4j4m0.toml"]
+        },
+        {
+            "name": "gr_8j8m",
+            "type": "python",
+            "request": "launch",
+            "program": "./pcoss_scheduler_pkg/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["../../data/8j8m_gr.toml"]
         }
     ]
 }

@@ -5,6 +5,7 @@ from random import random
 from typing import List, Set, Tuple
 
 import networkx as nx
+import numpy as np
 from matplotlib import pyplot as plt
 
 import pcoss_scheduler_pkg.constants as c
@@ -59,13 +60,15 @@ def create_conflict_graph_from_cnts_and_conflicting_machine_list(
                 G.add_edge((prev_job_idx, machine_idx), (job_idx, machine_idx))
 
     if show:
-        plt.figure(figsize=(6, 6))
+        fig = plt.figure(figsize=(6, 6))
+
         pos = {
             (x, y): (y + random() / 3, -x + random() / 3)
             for x, y in G.nodes()
             }
         
         nx.draw(G, with_labels=True, pos=pos, connectionstyle='arc3, rad=2')
+        fig.canvas.set_window_title('Conflict graph')
         plt.show()
     
     return G
@@ -104,6 +107,7 @@ def plot_gantt_chart(schedule: List[scheduled_operation]):
 
     fig = px.timeline(
         schedule_df,
+        title='Gantt chart',
         x_start="start_time",
         x_end="end_time",
         y="machine",
@@ -114,11 +118,20 @@ def plot_gantt_chart(schedule: List[scheduled_operation]):
 
 
 def plot_schedule_graph(graph: nx.DiGraph):
-    plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=(12, 12))
+    fig.canvas.set_window_title('Schedule graph')
     pos = {
         (x, y): (y + random() / 3, -x + random() / 3)
         for x, y in graph.nodes()
         }
     
-    nx.draw(graph, pos=pos, with_labels=True)
+    nx.draw(graph, pos=pos, with_labels=True, )
     plt.show()
+
+
+def grouping(table: pd.DataFrame, grouping_cols: List[int] = None, func: str = None) -> np.ndarray:
+    return (
+        table
+            .groupby(grouping_cols)
+            .agg(func)
+    )

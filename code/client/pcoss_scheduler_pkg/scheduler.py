@@ -17,17 +17,18 @@ from pcoss_scheduler_pkg.problem_input import ProblemInput
 
 
 class Scheduler:
-    def __init__(self, table: pd.DataFrame):
-        self.problem_input = None
+    def __init__(self, problem_input: ProblemInput):
+        self.problem_input = problem_input
 
-        self.table: pd.DataFrame = table
-        self._table: pd.DataFrame = table.to_numpy()
+        self.table: pd.DataFrame = problem_input.table_in
+        self._table = self.table
+        # use_cols = [c for c in self.table.columns if c not in self.problem_input.grouping_cols]
+        # self._table: pd.DataFrame = self.table[use_cols].to_numpy()
         self.row_grouping_func = h.id_func
         self.cloumn_grouping_func = h.id_func
         self.column_operation_dict: Dict = {}
         self.conflict_graph: nx.Graph = None
         self._conflict_graph: nx.Graph = None
-        self.complexity_table: pd.DataFrame = None
         self.processing_times: pd.DataFrame = None
         self._processing_times: pd.DataFrame = None
         
@@ -51,27 +52,35 @@ class Scheduler:
     def _group_columns(self):
         self._table = self.cloumn_grouping_func(self._table)
 
+    def _convert_to_numpy(self):
+        self._table = self._table.to_numpy()
+
     def _fill_times(self):
-        if not self.processing_times.empty:
+        if self.problem_input.processing_times is not None:
             self._processing_times = self.processing_times.to_numpy()
             return
 
-        if self.complexity_table:
-            self._processing_times = self._table * self.complexity_table
+        if self.problem_input.complexity_list:
+            vc = self.table.groupby(self.problem_input.grouping_cols).count()
+            for col, f in zip(vc, self.problem_input.complexity_list):
+                vc[col] = vc[col].apply(f)
+            self._processing_times = vc.to_numpy() + c.DEFAULT_ADDED_TIME_MS
             return
         
         self._processing_times = self._assses_aproximate_execution_times()
 
     def _assses_aproximate_execution_times(self):
-        # todo
-        return np.ones(self._table.shape)
+        raise NotImplementedError('Aproximate execution times not implemented')
 
     @h.get_func_exec_time_decorator
     def _prepare_data(self):
         self._group_rows()
         self._group_columns()
+        self._convert_to_numpy()
         self._fill_times()
         self._find_best_algorithm()
+
+        assert self._processing_times.shape == self._table.shape, f'Shape of (grouped) data: {self._table.shape} is different than shape of processing times {self._processing_times.shape}'
     
     @h.get_func_exec_time_decorator
     def _prepare_schedule(self):
@@ -108,14 +117,15 @@ class Scheduler:
 
     @classmethod
     def from_ProblemInput(cls, problem_input: ProblemInput):
-        s = cls(problem_input.table_in)
+        # s = cls(problem_input.table_in)
+        s = cls(problem_input)
 
-        s.problem_input = problem_input
+        # s.problem_input = problem_input
         if problem_input.column_operation_dict:
             s.column_operation_dict = problem_input.column_operation_dict
         if problem_input.conflict_graph_in:
             s.conflict_graph = problem_input.conflict_graph_in
-        if not problem_input.processing_times.empty:
+        if problem_input.processing_times is not None and not problem_input.processing_times.empty:
             s.processing_times = problem_input.processing_times
         if problem_input.algorithm:
             s.algorithm = problem_input.algorithm
@@ -123,5 +133,10 @@ class Scheduler:
             s.objective = problem_input.objective
         if problem_input.beam_width:
             s.beam_width = problem_input.beam_width
+        if problem_input.grouping_cols:
+            s.row_grouping_func = lambda t: h.grouping(
+                t,
+                problem_input.grouping_cols,
+                problem_input.grouping_func_name)
 
         return s
