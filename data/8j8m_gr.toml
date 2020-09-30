@@ -2,20 +2,19 @@ title = "8j8m0"
 info = "8 jobs 8 machines example 0"
 
 [files]
-data = "C:\\git\\mgr\\data\\auto\\8j8m0_data.csv"
-# processing_times = "C:\\git\\mgr\\data\\auto\\8j8m0_pt.csv"
+data = "C:\\git\\mgr\\data\\8j8m_gr_data.csv"
 
 [problem_data]
 index_cols = []
 complexity_list = [
     "lambda x: 0*x",
-    "lambda x: 1*x",
-    "lambda x: 2*x",
-    "lambda x: 3*x",
-    "lambda x: 4*x",
-    "lambda x: 5*x",
-    "lambda x: 6*x",
-    "lambda x: 7*x"
+    "lambda x: 100*x",
+    "lambda x: 200*x+100",
+    "lambda x: 300*x",
+    "lambda x: 400*x*x",
+    "lambda x: 500*x",
+    "lambda x: 600*x",
+    "lambda x: 700*x"
     ]
 grouping_cols = [ 0 ]
 grouping_func_name = "min"

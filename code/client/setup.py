@@ -9,7 +9,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="pcoss-scheduler-pkg-ksazon",
-    version="0.0.22",
+    version="0.0.25",
     author="Krzysztof Sazon",
     author_email="krzysztof.sazon@gmail.com",
     description="Tabular data PCOSS calculations module",
