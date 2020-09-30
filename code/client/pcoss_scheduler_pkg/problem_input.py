@@ -45,7 +45,7 @@ class ProblemInput:
             index_col=init_dict['problem_data']['index_cols'],
             usecols=lambda col: col not in init_dict['problem_data']['grouping_cols'],
             header=None,
-            ) * 100 + 1000
+            ) + c.DEFAULT_ADDED_TIME_MS
         
         self.conflicting_machines_list = init_dict['problem_data']['conflicting_machines']
 

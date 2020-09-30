@@ -2,14 +2,14 @@ title = "16j8m0"
 info = "16 jobs 8 machines example 0"
 
 [files]
-data = "C:\\git\\mgr\\data\\auto\\16j8m0.csv"
-processing_times = "C:\\git\\mgr\\data\\auto\\16j8m0.csv"
+data = "C:\\git\\mgr\\data\\auto\\16j8m0_data.csv"
+processing_times = "C:\\git\\mgr\\data\\auto\\16j8m0_pt.csv"
 
 [problem_data]
 index_cols = []
 grouping_cols = []
 conflicting_machines = [ [ 1, 2 ], [ 5, 7 ] ]
-base_url = "https://localhost:44320/Operations"
+base_url = "https://rapid-sphinx-291111.ey.r.appspot.com/Operations"
 
 [algorithm_config]
 algorithm_name = "insertion_beam"
@@ -19,6 +19,6 @@ beam_width = 5
 [display_config]
 print_responses = true
 print_method_times = false
-show_conflict_graph = false
-show_result_schedule_graph = false
-show_gantt_plot = false
+show_conflict_graph = true
+show_result_schedule_graph = true
+show_gantt_plot = true
