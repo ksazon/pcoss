@@ -14,6 +14,7 @@ class ProblemInput:
             init_dict['files']['data'],
             index_col=init_dict['problem_data']['index_cols'],
             usecols=lambda col: col not in init_dict['problem_data']['grouping_cols'],
+            header=None,
             )
 
         self.column_operation_dict = {}
@@ -43,6 +44,7 @@ class ProblemInput:
             init_dict['files']['processing_times'],
             index_col=init_dict['problem_data']['index_cols'],
             usecols=lambda col: col not in init_dict['problem_data']['grouping_cols'],
+            header=None,
             ) * 100 + 1000
         
         self.conflicting_machines_list = init_dict['problem_data']['conflicting_machines']

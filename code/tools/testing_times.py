@@ -2,29 +2,25 @@ import asyncio
 import time
 from typing import List, Set, Tuple
 
-import constants as c
-import create_problem_input as cpi
-import helpers as h
-# import operations as o
-import output
-import scheduler as s
+import pcoss_scheduler_pkg.constants as c
+import pcoss_scheduler_pkg.problem_input as cpi
+import pcoss_scheduler_pkg.helpers as h
+import pcoss_scheduler_pkg.output
+import pcoss_scheduler_pkg.scheduler as s
 import pandas as pd
 
 import glob
 
 
 async def main():
-    problem_files = glob.glob(r'../data/auto/*.toml')
+    problem_files = glob.glob(r'../../data/auto/*j4m0.toml')
     times = []
 
     for pf in problem_files:
         print(pf)
         pi = cpi.ProblemInput.from_toml(pf)
 
-        sc = s.Scheduler(pi.table_in)
-        sc.column_operation_dict = pi.column_operation_dict
-        sc.conflict_graph = pi.conflict_graph_in
-        sc.processing_times = pi.processing_times
+        sc = s.Scheduler.from_ProblemInput(pi)
         
         ts = time.perf_counter()
         sc.prepare()

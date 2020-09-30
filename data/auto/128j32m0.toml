@@ -1,0 +1,24 @@
+title = "128j32m0"
+info = "128 jobs 32 machines example 0"
+
+[files]
+data = "C:\\git\\mgr\\data\\auto\\128j32m0.csv"
+processing_times = "C:\\git\\mgr\\data\\auto\\128j32m0.csv"
+
+[problem_data]
+index_cols = []
+grouping_cols = []
+conflicting_machines = [ [ 1, 2 ], [ 5, 7 ], [ 9, 10 ], [ 13, 14 ], [ 15, 16 ], [ 17, 18 ], [ 20, 25 ], [ 27, 30 ] ]
+base_url = "https://localhost:44320/Operations"
+
+[algorithm_config]
+algorithm_name = "insertion_beam"
+objective = "cmax"
+beam_width = 5
+
+[display_config]
+print_responses = true
+print_method_times = false
+show_conflict_graph = false
+show_result_schedule_graph = false
+show_gantt_plot = false

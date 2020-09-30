@@ -2,8 +2,8 @@ title = "4j2m0"
 info = "4 jobs 2 machines example 0"
 
 [files]
-data = "4j2m0.csv"
-processing_times = "4j2m0.csv"
+data = "C:\\git\\mgr\\data\\auto\\4j2m0.csv"
+processing_times = "C:\\git\\mgr\\data\\auto\\4j2m0.csv"
 
 [problem_data]
 index_cols = []
@@ -18,7 +18,7 @@ beam_width = 5
 
 [display_config]
 print_responses = true
-print_method_times = true
-show_conflict_graph = true
-show_result_schedule_graph = true
-show_gantt_plot = true
+print_method_times = false
+show_conflict_graph = false
+show_result_schedule_graph = false
+show_gantt_plot = false
